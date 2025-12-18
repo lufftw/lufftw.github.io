@@ -75,7 +75,7 @@ const listItems = sortedPosts
   <main id="main-content" data-layout="index">
     <div class="mx-auto w-full max-w-6xl px-4">
       <!-- Page title and RSS -->
-      <section class="pt-8 pb-4">
+      <section class="pt-8 pb-4 !mx-0 !max-w-none !px-0">
         <div class="flex items-center gap-3">
           <h1 class="text-4xl font-bold sm:text-5xl">Mingalaba</h1>
 
@@ -104,7 +104,7 @@ const listItems = sortedPosts
 
       <!-- Featured post (single, editorial; not duplicated with hero) -->
       {featuredPost && (
-        <section class="mt-10">
+        <section class="mt-10 !mx-0 !max-w-none !px-0">
           <FeaturedPostCard {...featuredPost} />
         </section>
       )}
@@ -112,7 +112,7 @@ const listItems = sortedPosts
       <!-- Main content + sidebar -->
       <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
         <!-- Main post list -->
-        <section class="lg:col-span-8">
+        <section class="lg:col-span-8 !mx-0 !max-w-none !px-0">
           <h2 class="text-2xl font-semibold tracking-wide">Latest</h2>
 
           <Hr />

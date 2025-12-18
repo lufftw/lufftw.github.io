@@ -10,7 +10,6 @@
  * - Slide counter (e.g. 1 / 5)
  *
  * Implementation notes:
- * - No dynamic attributes inside HTML tags that may confuse Astro parser
  * - No external libraries
  */
 
@@ -24,12 +23,15 @@ function coverOf(entry) {
 }
 ---
 
-<section class="mt-4" data-hero-root>
-  <div class="relative overflow-hidden rounded-2xl border border-slate-200">
+<section class="mt-4 !mx-0 !max-w-none !px-0" data-hero-root>
+  <div
+    class="relative overflow-hidden rounded-2xl border border-slate-200"
+    style="overflow-anchor: none;"
+  >
     <!-- Scrollable carousel container -->
     <div
       class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth"
-      style="scrollbar-width: none;"
+      style="scrollbar-width: none; overflow-anchor: none;"
       data-carousel
       aria-label="Featured posts carousel"
     >
@@ -85,6 +87,7 @@ function coverOf(entry) {
       class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
       data-prev
       aria-label="Previous slide"
+      type="button"
     >
       ‹
     </button>
@@ -93,6 +96,7 @@ function coverOf(entry) {
       class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
       data-next
       aria-label="Next slide"
+      type="button"
     >
       ›
     </button>
@@ -107,6 +111,7 @@ function coverOf(entry) {
             data-dot
             data-dot-index={idx}
             aria-label={`Go to slide ${idx + 1}`}
+            type="button"
           />
         ))}
       </div>
@@ -126,6 +131,10 @@ function coverOf(entry) {
    * - Track active slide via IntersectionObserver
    * - Sync dots and counter
    * - Autoplay with pause-on-hover/focus and prefers-reduced-motion support
+   *
+   * IMPORTANT:
+   * - Avoid scrollIntoView() because it can scroll the whole page.
+   * - Use scroller.scrollTo({ left }) to only move the carousel.
    */
   const root = document.querySelector("[data-hero-root]");
   const scroller = root?.querySelector("[data-carousel]");
@@ -140,7 +149,6 @@ function coverOf(entry) {
     const total = slides.length;
     if (totalEl) totalEl.textContent = String(total);
 
-    // Track active index in JS state (used by autoplay)
     let activeIndex = 0;
 
     const setActive = (index) => {
@@ -153,10 +161,17 @@ function coverOf(entry) {
       });
     };
 
-    const scrollToIndex = (index) => {
+    const leftOfIndex = (index) => {
       const target = slides[index];
-      if (!target) return;
-      target.scrollIntoView({ behavior: "smooth", inline: "start" });
+      if (!target) return null;
+      // offsetLeft is relative to the scroll container for positioned children
+      return target.offsetLeft;
+    };
+
+    const scrollToIndex = (index) => {
+      const left = leftOfIndex(index);
+      if (left == null) return;
+      scroller.scrollTo({ left, behavior: "smooth" });
     };
 
     const scrollByOne = (direction) => {
@@ -193,7 +208,6 @@ function coverOf(entry) {
     // ---- Autoplay ---------------------------------------------------------
     const AUTOPLAY_MS = 6000;
 
-    // Respect user accessibility preference
     const prefersReducedMotion =
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -214,14 +228,11 @@ function coverOf(entry) {
 
       timer = setInterval(() => {
         if (paused) return;
-
-        // Advance to next slide (wrap around)
         const nextIndex = (activeIndex + 1) % total;
         scrollToIndex(nextIndex);
       }, AUTOPLAY_MS);
     };
 
-    // Pause autoplay when user interacts (hover/focus/touch)
     const pause = () => { paused = true; };
     const resume = () => { paused = false; };
 
@@ -230,25 +241,24 @@ function coverOf(entry) {
     root.addEventListener("focusin", pause);
     root.addEventListener("focusout", resume);
 
-    // Touch: pause while touching, resume shortly after
     root.addEventListener("touchstart", pause, { passive: true });
-    root.addEventListener("touchend", () => {
-      // Small delay to avoid fighting the user's swipe momentum
-      setTimeout(resume, 800);
-    }, { passive: true });
+    root.addEventListener(
+      "touchend",
+      () => { setTimeout(resume, 800); },
+      { passive: true }
+    );
 
-    // Start autoplay only if there are at least 2 slides
     if (total >= 2) startAutoplay();
 
-    // ----------------------------------------------------------------------
-
-    // Initialize state
     setActive(0);
 
-    // Ensure cleanup if the page is replaced (Astro client-side navigation)
-    document.addEventListener("astro:before-swap", () => {
-      stopAutoplay();
-      io.disconnect();
-    }, { once: true });
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        stopAutoplay();
+        io.disconnect();
+      },
+      { once: true }
+    );
   }
 </script>
