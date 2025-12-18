@@ -20,8 +20,38 @@ Following these steps ensures consistency between local development, CI, and Git
 
 Ensure the correct Node.js version is active.
 
+### Check Installed Versions
+
+List all installed Node.js versions:
+
+```bash
+nvm list
+
+```
+
+This shows all Node.js versions installed on your system.
+
+### Switch to Node Version
+
+Switch to the desired Node.js version (use the version number you need):
+
 ```bash
 nvm use 20
+
+```
+
+Or use a specific version:
+
+```bash
+nvm use 20.19.6
+
+```
+
+### Verify Node.js Version
+
+After switching, verify the active Node.js version:
+
+```bash
 node -v
 
 ```
@@ -32,6 +62,24 @@ node -v
 v20.x.x
 
 ```
+
+### Verify npm Version
+
+Check the npm version that comes with the active Node.js installation:
+
+```bash
+npm -v
+
+```
+
+**Expected output:**
+
+```text
+10.x.x
+
+```
+
+### Install Node 20 (if not installed)
 
 If Node 20 is not installed:
 
