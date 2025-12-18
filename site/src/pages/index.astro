@@ -26,6 +26,7 @@ import { SITE } from "@/config";
 import HeroCarousel from "@/components/home/HeroCarousel.astro";
 import Sidebar from "@/components/home/Sidebar.astro";
 import PostCardHorizontal from "@/components/PostCardHorizontal.astro";
+import FeaturedPostCard from "@/components/FeaturedPostCard.astro";
 
 // Fetch all blog entries and keep only posts
 const allPosts = await getCollection("blog");
@@ -37,6 +38,9 @@ const sortedPosts = getSortedPosts(posts);
 // Separate featured and non-featured posts
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+
+// Select a single featured post for homepage display
+const featuredPost = featuredPosts[0];
 
 // Hero carousel data:
 // Prefer featured posts; fallback to latest posts
@@ -81,6 +85,13 @@ const listItems = sortedPosts
 
       <!-- Hero carousel -->
       <HeroCarousel items={heroItems} />
+
+      <!-- Featured post (single, editorial) -->
+      {featuredPost && (
+        <section class="mt-10">
+          <FeaturedPostCard {...featuredPost} />
+        </section>
+      )}
 
       <!-- Main content + sidebar -->
       <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">

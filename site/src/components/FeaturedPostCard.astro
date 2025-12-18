@@ -1,0 +1,106 @@
+---
+/**
+ * FeaturedPostCard
+ *
+ * Large featured post card for homepage.
+ *
+ * Layout:
+ * - Left: large cover image
+ * - Right: metadata panel (title, datetime, description, tags)
+ *
+ * This component is intended to be used only once per page.
+ */
+
+import type { CollectionEntry } from "astro:content";
+import { slugifyStr } from "@/utils/slugify";
+import { getPathFromEntry } from "@/utils/getPath";
+import Datetime from "./Datetime.astro";
+
+export interface Props extends CollectionEntry<"blog"> {}
+
+const entry = Astro.props;
+const { title, description, tags } = entry.data;
+
+// Resolve cover image from frontmatter
+const coverImage =
+  entry.data?.heroImage ||
+  entry.data?.coverImage ||
+  entry.data?.image;
+
+// Shared title props
+const headerProps = {
+  style: { viewTransitionName: slugifyStr(title) },
+  class:
+    "text-2xl font-bold leading-snug decoration-dashed hover:underline",
+};
+---
+
+<article class="grid grid-cols-1 gap-6 rounded-2xl border border-slate-200 p-6 md:grid-cols-2">
+  <!-- Cover image -->
+  {coverImage && (
+    <a
+      href={getPathFromEntry(entry)}
+      class="block overflow-hidden rounded-xl"
+      aria-label={`Read featured post: ${title}`}
+    >
+      <img
+        src={coverImage}
+        alt={title}
+        class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+        loading="eager"
+      />
+    </a>
+  )}
+
+  <!-- Metadata panel -->
+  <div class="flex flex-col justify-between">
+    <div>
+      <!-- Title -->
+      <a
+        href={getPathFromEntry(entry)}
+        class="inline-block text-accent underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
+      >
+        <h2 {...headerProps}>{title}</h2>
+      </a>
+
+      <!-- Datetime -->
+      <div class="mt-2 text-sm text-slate-500">
+        <Datetime
+          pubDatetime={entry.data.pubDatetime}
+          modDatetime={entry.data.modDatetime}
+          timezone={entry.data.timezone}
+        />
+      </div>
+
+      <!-- Description -->
+      {description && (
+        <p class="mt-4 text-base text-slate-600">
+          {description}
+        </p>
+      )}
+
+      <!-- Tags (optional) -->
+      {tags && tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              class="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- Read more -->
+    <div class="mt-6">
+      <a
+        href={getPathFromEntry(entry)}
+        class="inline-flex items-center text-sm font-medium text-accent hover:underline"
+      >
+        Continue reading →
+      </a>
+    </div>
+  </div>
+</article>
