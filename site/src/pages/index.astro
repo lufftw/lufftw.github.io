@@ -25,6 +25,7 @@ import { SITE } from "@/config";
 
 import HeroCarousel from "@/components/home/HeroCarousel.astro";
 import Sidebar from "@/components/home/Sidebar.astro";
+import PostCardHorizontal from "@/components/PostCardHorizontal.astro";
 
 // Fetch all blog entries and keep only posts
 const allPosts = await getCollection("blog");
@@ -93,7 +94,7 @@ const listItems = sortedPosts
             {listItems.map((data) => (
               <li>
                 {/* Reuse existing Card component for minimal refactor */}
-                <Card variant="h3" {...data} />
+                <PostCardHorizontal {...data} />
               </li>
             ))}
           </ul>

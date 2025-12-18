@@ -1,0 +1,89 @@
+---
+/**
+ * PostCardHorizontal
+ *
+ * Logbook-style horizontal post card.
+ *
+ * Layout:
+ * - Left: cover / hero image (optional)
+ * - Right: title, datetime, description, and read-more affordance
+ *
+ * This component is intentionally separated from the original Card component
+ * to preserve backward compatibility and allow gradual migration.
+ */
+
+import type { CollectionEntry } from "astro:content";
+import { slugifyStr } from "@/utils/slugify";
+import { getPathFromEntry } from "@/utils/getPath";
+import Datetime from "./Datetime.astro";
+
+export interface Props extends CollectionEntry<"blog"> {}
+
+const entry = Astro.props;
+const { title, description } = entry.data;
+
+// Resolve cover image from frontmatter (non-mandatory)
+const coverImage =
+  entry.data?.heroImage ||
+  entry.data?.coverImage ||
+  entry.data?.image;
+
+// Title props shared by h2/h3 if needed later
+const headerProps = {
+  style: { viewTransitionName: slugifyStr(title) },
+  class:
+    "text-xl font-semibold leading-snug decoration-dashed hover:underline",
+};
+---
+
+<article class="flex flex-col gap-4 rounded-2xl border border-slate-200 p-4 sm:flex-row">
+  <!-- Cover image -->
+  {coverImage && (
+    <a
+      href={getPathFromEntry(entry)}
+      class="block shrink-0 overflow-hidden rounded-xl sm:h-32 sm:w-48"
+      aria-label={`Read post: ${title}`}
+    >
+      <img
+        src={coverImage}
+        alt={title}
+        class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+        loading="lazy"
+      />
+    </a>
+  )}
+
+  <!-- Content -->
+  <div class="flex flex-1 flex-col">
+    <!-- Title -->
+    <a
+      href={getPathFromEntry(entry)}
+      class="inline-block text-accent underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
+    >
+      <h3 {...headerProps}>{title}</h3>
+    </a>
+
+    <!-- Datetime -->
+    <div class="mt-1 text-sm text-slate-500">
+      <Datetime
+        pubDatetime={entry.data.pubDatetime}
+        modDatetime={entry.data.modDatetime}
+        timezone={entry.data.timezone}
+      />
+    </div>
+
+    <!-- Description -->
+    {description && (
+      <p class="mt-2 line-clamp-3 text-sm text-slate-600">
+        {description}
+      </p>
+    )}
+
+    <!-- Read more indicator -->
+    <div class="mt-3">
+      <span class="text-sm font-medium text-accent hover:underline">
+        Continue reading →
+      </span>
+    </div>
+  </div>
+</article>
