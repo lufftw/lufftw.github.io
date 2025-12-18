@@ -2,19 +2,15 @@
 /**
  * Header
  *
- * Goals:
- * - Clean top navigation bar with site title and primary links
- * - Mobile menu (hamburger) with overlay panel
- * - Search button that navigates to /search (or focuses the query input if present)
+ * Fixes:
+ * - Search is a plain link (/search/) instead of JS-triggered navigation
+ * - Mobile menu JS no longer relies on document.currentScript
  *
- * Design notes:
- * - Minimal DOM structure, easy to extend
- * - No external dependencies
- * - Avoids Astro parser edge cases by keeping HTML attributes simple
+ * Result:
+ * - Search ALWAYS works
+ * - Mobile menu behavior preserved
  */
 
-// Update these links to match your routes.
-// Keep the list short to maintain a clean "Logbook" feel.
 const NAV_LINKS = [
   { label: "Posts", href: "/posts/" },
   { label: "Notes", href: "/notes/" },
@@ -22,199 +18,11 @@ const NAV_LINKS = [
   { label: "About", href: "/about/" },
 ];
 
-// Set your site title here (or replace with config import later).
 const SITE_TITLE = "Mingalaba";
 ---
 
-<header class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-    <!-- Left: brand -->
-    <div class="flex items-center gap-3">
-      <a
-        href="/"
-        class="text-base font-semibold tracking-tight text-slate-900 hover:opacity-90"
-        aria-label="Go to homepage"
-      >
-        {SITE_TITLE}
-      </a>
-    </div>
-
-    <!-- Center: desktop nav -->
-    <nav class="hidden items-center gap-6 md:flex" aria-label="Primary navigation">
-      {NAV_LINKS.map((item) => (
-        <a
-          href={item.href}
-          class="text-sm font-medium text-slate-700 hover:text-slate-900"
-        >
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    <!-- Right: actions -->
-    <div class="flex items-center gap-2">
-      <!-- Search -->
-      <button
-        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        data-search
-        aria-label="Search"
-        title="Search"
-      >
-        <!-- Simple inline icon -->
-        <span aria-hidden="true">⌕</span>
-        <span class="ml-2 hidden sm:inline">Search</span>
-      </button>
-
-      <!-- Mobile menu toggle -->
-      <button
-        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 md:hidden"
-        data-menu-open
-        aria-label="Open menu"
-        title="Menu"
-      >
-        ☰
-      </button>
-    </div>
-  </div>
-
-  <!-- Mobile menu overlay -->
-  <div class="pointer-events-none fixed inset-0 z-50 opacity-0 transition-opacity" data-menu-overlay>
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/40" data-menu-backdrop></div>
-
-    <!-- Panel -->
-    <div
-      class="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] translate-x-full bg-white shadow-xl transition-transform"
-      data-menu-panel
-      role="dialog"
-      aria-modal="true"
-      aria-label="Mobile menu"
-    >
-      <div class="flex items-center justify-between border-b border-slate-200 px-4 py-4">
-        <div class="text-sm font-semibold text-slate-900">{SITE_TITLE}</div>
-        <button
-          class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          data-menu-close
-          aria-label="Close menu"
-          title="Close"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div class="px-4 py-4">
-        <div class="mb-4">
-          <button
-            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
-            data-search
-          >
-            ⌕ Search
-          </button>
-        </div>
-
-        <nav class="flex flex-col gap-2" aria-label="Mobile navigation">
-          {NAV_LINKS.map((item) => (
-            <a
-              href={item.href}
-              class="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-              data-menu-link
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        <div class="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-500">
-          Minimal navigation, optimized for reading.
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<script is:inline>
-  /**
-   * Header interactions:
-   * - Mobile menu open/close
-   * - Close on backdrop click, Escape key, and link click
-   * - Search button: navigate to /search (or focus query input if present)
-   *
-   * This script is written to be resilient under Astro client-side navigation.
-   */
-
-  const header = document.currentScript.closest("header");
-  if (!header) {
-    // Nothing to do.
-  } else {
-    const overlay = header.querySelector("[data-menu-overlay]");
-    const panel = header.querySelector("[data-menu-panel]");
-    const openBtn = header.querySelector("[data-menu-open]");
-    const closeBtn = header.querySelector("[data-menu-close]");
-    const backdrop = header.querySelector("[data-menu-backdrop]");
-    const menuLinks = Array.from(header.querySelectorAll("[data-menu-link]"));
-    const searchButtons = Array.from(header.querySelectorAll("[data-search]"));
-
-    const openMenu = () => {
-      if (!overlay || !panel) return;
-      overlay.classList.remove("pointer-events-none");
-      overlay.classList.remove("opacity-0");
-      overlay.classList.add("opacity-100");
-      panel.classList.remove("translate-x-full");
-      document.documentElement.style.overflow = "hidden";
-      closeBtn?.focus?.();
-    };
-
-    const closeMenu = () => {
-      if (!overlay || !panel) return;
-      overlay.classList.add("pointer-events-none");
-      overlay.classList.remove("opacity-100");
-      overlay.classList.add("opacity-0");
-      panel.classList.add("translate-x-full");
-      document.documentElement.style.overflow = "";
-      openBtn?.focus?.();
-    };
-
-    openBtn?.addEventListener("click", openMenu);
-    closeBtn?.addEventListener("click", closeMenu);
-    backdrop?.addEventListener("click", closeMenu);
-
-    // Close when clicking any link in the mobile menu
-    menuLinks.forEach((a) => {
-      a.addEventListener("click", () => closeMenu());
-    });
-
-    // Close on Escape
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMenu();
-    });
-
-    // Search behavior:
-    // - If /search exists, go there and pass current query via `q` if user typed later.
-    // - If already on /search, focus the query input (name="q") if present.
-    const triggerSearch = () => {
-      const isOnSearchPage = window.location.pathname.startsWith("/search");
-      if (isOnSearchPage) {
-        const input = document.querySelector('input[name="q"]');
-        if (input) input.focus();
-        return;
-      }
-      window.location.href = "/search";
-    };
-
-    searchButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        closeMenu();
-        triggerSearch();
-      });
-    });
-
-    // Cleanup on page swap (Astro view transitions)
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
-        document.documentElement.style.overflow = "";
-      },
-      { once: true }
-    );
-  }
-</script>
+<header
+  class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur"
+  data-site-header
+>
+  <div class="mx-auto flex max-w-6xl items-cen
