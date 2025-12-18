@@ -1,0 +1,25 @@
+---
+import { getCollection } from "astro:content";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Topic from "@/components/Topic.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import getUniqueTopics from "@/utils/getUniqueTopics";
+import { SITE } from "@/config";
+
+const posts = await getCollection("blog");
+
+let topics = getUniqueTopics(posts);
+---
+
+<Layout title={`Topics | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Topics" pageDesc="High-level topics and themes.">
+    <ul>
+      {topics.map(({ topic, topicName }) => <Topic {topic} {topicName} size="lg" />)}
+    </ul>
+  </Main>
+  <Footer />
+</Layout>
+

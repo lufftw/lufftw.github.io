@@ -12,16 +12,16 @@ import { SITE } from "@/config";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const allPosts = await getCollection("blog", ({ data }) => !data.draft);
-  const posts = allPosts.filter(({ data }) => data.type === "post");
-  return paginate(getSortedPosts(posts), { pageSize: SITE.postPerPage });
+  const notes = allPosts.filter(({ data }) => data.type === "note");
+  return paginate(getSortedPosts(notes), { pageSize: SITE.postPerPage });
 }) satisfies GetStaticPaths;
 
 const { page } = Astro.props;
 ---
 
-<Layout title={`Posts | ${SITE.title}`}>
+<Layout title={`Notes | ${SITE.title}`}>
   <Header />
-  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+  <Main pageTitle="Notes" pageDesc="Engineering and research notes.">
     <ul>
       {page.data.map(data => <Card {...data} />)}
     </ul>
@@ -31,3 +31,4 @@ const { page } = Astro.props;
 
   <Footer noMarginTop={page.lastPage > 1} />
 </Layout>
+

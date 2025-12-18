@@ -1,0 +1,51 @@
+---
+import { getCollection } from "astro:content";
+import type { GetStaticPathsOptions } from "astro";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
+import Pagination from "@/components/Pagination.astro";
+import getUniqueTopics from "@/utils/getUniqueTopics";
+import getPostsByTopic from "@/utils/getPostsByTopic";
+import { SITE } from "@/config";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getCollection("blog");
+  const topics = getUniqueTopics(posts);
+
+  return topics.flatMap(({ topic, topicName }) => {
+    const topicPosts = getPostsByTopic(posts, topic);
+
+    return paginate(topicPosts, {
+      params: { topic },
+      props: { topicName },
+      pageSize: SITE.postPerPage,
+    });
+  });
+}
+
+const params = Astro.params;
+const { topic } = params;
+const { page, topicName } = Astro.props;
+---
+
+<Layout title={`Topic: ${topicName} | ${SITE.title}`}>
+  <Header />
+  <Main
+    pageTitle={[`Topic:`, `${topicName}`]}
+    titleTransition={topic}
+    pageDesc={`All the articles with the topic "${topicName}".`}
+  >
+    <h1 slot="title" transition:name={topic}>{`Topic:${topic}`}</h1>
+    <ul>
+      {page.data.map(data => <Card {...data} />)}
+    </ul>
+  </Main>
+
+  <Pagination {page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>
+
