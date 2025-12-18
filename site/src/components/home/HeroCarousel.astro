@@ -4,12 +4,14 @@
  *
  * Featured-only hero carousel using horizontal scroll-snap.
  *
- * Enhancements:
- * - Prev/Next buttons
- * - Dots indicator (clickable)
- * - Slide counter (e.g., 1 / 5)
+ * Features:
+ * - Prev / Next buttons
+ * - Dots indicator
+ * - Slide counter (e.g. 1 / 5)
  *
- * No external libraries are used.
+ * Implementation notes:
+ * - No dynamic attributes inside HTML tags that may confuse Astro parser
+ * - No external libraries
  */
 
 import { getPathFromEntry } from "@/utils/getPath";
@@ -39,12 +41,21 @@ function coverOf(entry) {
         >
           <a href={getPathFromEntry(entry)} class="block h-full w-full">
             {coverOf(entry) ? (
-              <img
-                src={coverOf(entry)}
-                alt={entry.data?.title ?? entry.slug}
-                class="h-full w-full object-cover"
-                loading={idx === 0 ? "eager" : "lazy"}
-              />
+              idx === 0 ? (
+                <img
+                  src={coverOf(entry)}
+                  alt={entry.data?.title ?? entry.slug}
+                  class="h-full w-full object-cover"
+                  loading="eager"
+                />
+              ) : (
+                <img
+                  src={coverOf(entry)}
+                  alt={entry.data?.title ?? entry.slug}
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              )
             ) : (
               <div class="h-full w-full bg-slate-100" />
             )}
@@ -59,7 +70,9 @@ function coverOf(entry) {
               </h2>
 
               {entry.data?.datetime && (
-                <div class="mt-2 text-sm opacity-90">{entry.data.datetime}</div>
+                <div class="mt-2 text-sm opacity-90">
+                  {entry.data.datetime}
+                </div>
               )}
             </div>
           </a>
@@ -69,7 +82,6 @@ function coverOf(entry) {
 
     <!-- Prev / Next controls -->
     <button
-      type="button"
       class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
       data-prev
       aria-label="Previous slide"
@@ -78,7 +90,6 @@ function coverOf(entry) {
     </button>
 
     <button
-      type="button"
       class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
       data-next
       aria-label="Next slide"
@@ -92,4 +103,94 @@ function coverOf(entry) {
       <div class="flex items-center gap-2" data-dots aria-label="Slide indicators">
         {items.map((_, idx) => (
           <button
-            type="button"
+            class="h-2 w-2 rounded-full bg-white/60 hover:bg-white"
+            data-dot
+            data-dot-index={idx}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+
+      <!-- Counter -->
+      <div class="rounded-full bg-black/40 px-3 py-1 text-xs text-white" data-counter>
+        <span data-current>1</span> / <span data-total>{items.length}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  /**
+   * Carousel controller:
+   * - Scroll by container width
+   * - Track active slide via IntersectionObserver
+   * - Sync dots and counter
+   */
+  const root = document.querySelector("[data-hero-root]");
+  const scroller = root?.querySelector("[data-carousel]");
+  const prev = root?.querySelector("[data-prev]");
+  const next = root?.querySelector("[data-next]");
+  const slides = Array.from(root?.querySelectorAll("[data-slide]") ?? []);
+  const dots = Array.from(root?.querySelectorAll("[data-dot]") ?? []);
+  const currentEl = root?.querySelector("[data-current]");
+  const totalEl = root?.querySelector("[data-total]");
+
+  if (root && scroller && slides.length > 0) {
+    const total = slides.length;
+    if (totalEl) totalEl.textContent = String(total);
+
+    const setActive = (index) => {
+      if (currentEl) currentEl.textContent = String(index + 1);
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("bg-white", i === index);
+        dot.classList.toggle("bg-white/60", i !== index);
+      });
+    };
+
+    const scrollToIndex = (index) => {
+      const target = slides[index];
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", inline: "start" });
+    };
+
+    const scrollByOne = (direction) => {
+      const width = scroller.clientWidth;
+      scroller.scrollBy({ left: direction * width, behavior: "smooth" });
+    };
+
+    prev?.addEventListener("click", () => scrollByOne(-1));
+    next?.addEventListener("click", () => scrollByOne(1));
+
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        const idx = Number(dot.getAttribute("data-dot-index"));
+        if (!Number.isNaN(idx)) scrollToIndex(idx);
+      });
+    });
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        let best = null;
+        for (const e of entries) {
+          if (!best || e.intersectionRatio > best.intersectionRatio) {
+            best = e;
+          }
+        }
+        if (!best || !best.isIntersecting) return;
+
+        const idx = Number(best.target.getAttribute("data-index"));
+        if (!Number.isNaN(idx)) setActive(idx);
+      },
+      {
+        root: scroller,
+        threshold: [0.4, 0.6, 0.8],
+      }
+    );
+
+    slides.forEach((s) => io.observe(s));
+
+    // Initialize state
+    setActive(0);
+  }
+</script>
