@@ -8,9 +8,11 @@
  * - Prev / Next buttons
  * - Dots indicator
  * - Slide counter (e.g. 1 / 5)
+ * - Autoplay with pause-on-hover/focus and prefers-reduced-motion support
  *
- * Implementation notes:
- * - No external libraries
+ * Notes:
+ * - Use scroller.scrollTo({ left }) instead of scrollIntoView()
+ *   to avoid scrolling the whole page.
  */
 
 import { getPathFromEntry } from "@/utils/getPath";
@@ -18,26 +20,22 @@ import { getPathFromEntry } from "@/utils/getPath";
 const { items } = Astro.props;
 
 // Resolve hero image source from frontmatter
-function coverOf(entry) {
+function coverOf(entry: any) {
   return entry.data?.heroImage || entry.data?.coverImage || entry.data?.image;
 }
 ---
 
-<section class="mt-4 !mx-0 !max-w-none !px-0" data-hero-root>
-  <div
-    class="relative overflow-hidden rounded-2xl border border-slate-200"
-    style="overflow-anchor: none;"
-  >
+<section class="mt-4" data-hero-root>
+  <div class="carousel-container">
     <!-- Scrollable carousel container -->
     <div
-      class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth"
-      style="scrollbar-width: none; overflow-anchor: none;"
+      class="carousel-scroller"
       data-carousel
       aria-label="Featured posts carousel"
     >
-      {items.map((entry, idx) => (
+      {items.map((entry: any, idx: number) => (
         <article
-          class="relative h-[320px] w-full flex-none snap-start md:h-[420px]"
+          class="carousel-slide"
           data-slide
           data-index={idx}
         >
@@ -59,20 +57,20 @@ function coverOf(entry) {
                 />
               )
             ) : (
-              <div class="h-full w-full bg-slate-100" />
+              <div class="carousel-placeholder" />
             )}
 
             <!-- Gradient overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div class="carousel-gradient" />
 
             <!-- Text overlay -->
-            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <h2 class="text-xl font-semibold leading-snug md:text-3xl">
+            <div class="carousel-text">
+              <h2 class="carousel-title">
                 {entry.data?.title ?? entry.slug}
               </h2>
 
               {entry.data?.datetime && (
-                <div class="mt-2 text-sm opacity-90">
+                <div class="carousel-date">
                   {entry.data.datetime}
                 </div>
               )}
@@ -84,7 +82,7 @@ function coverOf(entry) {
 
     <!-- Prev / Next controls -->
     <button
-      class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+      class="carousel-btn carousel-btn-prev"
       data-prev
       aria-label="Previous slide"
       type="button"
@@ -93,7 +91,7 @@ function coverOf(entry) {
     </button>
 
     <button
-      class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+      class="carousel-btn carousel-btn-next"
       data-next
       aria-label="Next slide"
       type="button"
@@ -102,12 +100,12 @@ function coverOf(entry) {
     </button>
 
     <!-- Bottom bar: dots + counter -->
-    <div class="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-4">
+    <div class="carousel-controls">
       <!-- Dots -->
-      <div class="flex items-center gap-2" data-dots aria-label="Slide indicators">
-        {items.map((_, idx) => (
+      <div class="carousel-dots" data-dots aria-label="Slide indicators">
+        {items.map((_: any, idx: number) => (
           <button
-            class="h-2 w-2 rounded-full bg-white/60 hover:bg-white"
+            class="carousel-dot"
             data-dot
             data-dot-index={idx}
             aria-label={`Go to slide ${idx + 1}`}
@@ -117,12 +115,184 @@ function coverOf(entry) {
       </div>
 
       <!-- Counter -->
-      <div class="rounded-full bg-black/40 px-3 py-1 text-xs text-white" data-counter>
+      <div class="carousel-counter" data-counter>
         <span data-current>1</span> / <span data-total>{items.length}</span>
       </div>
     </div>
   </div>
 </section>
+
+<style>
+  /* Container */
+  /* Following AstroPaper standard: use CSS variables for theme-aware colors */
+  .carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    overflow-anchor: none;
+  }
+
+  /* Scroller */
+  .carousel-scroller {
+    display: flex;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    overflow-anchor: none;
+  }
+  .carousel-scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Slide */
+  .carousel-slide {
+    position: relative;
+    height: 320px;
+    width: 100%;
+    flex: none;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 768px) {
+    .carousel-slide {
+      height: 420px;
+    }
+  }
+
+  /* Placeholder */
+  /* Use muted color variable for consistent theming */
+  .carousel-placeholder {
+    height: 100%;
+    width: 100%;
+    background-color: var(--muted);
+  }
+
+  /* Gradient overlay */
+  .carousel-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7),
+      rgba(0, 0, 0, 0.2) 50%,
+      transparent
+    );
+  }
+
+  /* Text overlay */
+  .carousel-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    color: white;
+  }
+
+  .carousel-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.375;
+  }
+  @media (min-width: 768px) {
+    .carousel-title {
+      font-size: 1.875rem;
+    }
+  }
+
+  .carousel-date {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  /* Navigation buttons */
+  /* Use background and foreground variables for theme consistency */
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--foreground);
+    padding: 0.5rem 0.75rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .carousel-btn:hover {
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  /* Dark mode: use background variable with opacity for consistency */
+  html[data-theme="dark"] .carousel-btn {
+    background-color: color-mix(in srgb, var(--background) 80%, transparent);
+    color: var(--foreground);
+  }
+  html[data-theme="dark"] .carousel-btn:hover {
+    background-color: color-mix(in srgb, var(--background) 95%, transparent);
+  }
+
+  .carousel-btn-prev {
+    left: 0.75rem;
+  }
+  .carousel-btn-next {
+    right: 0.75rem;
+  }
+
+  /* Controls container */
+  .carousel-controls {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  /* Dots */
+  .carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .carousel-dot {
+    height: 0.5rem;
+    width: 0.5rem;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
+  }
+  .carousel-dot:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+  }
+  .carousel-dot.bg-white {
+    background-color: rgb(255, 255, 255);
+    width: 1.25rem;
+  }
+
+  /* Counter */
+  /* Use semi-transparent black overlay that works in both themes */
+  .carousel-counter {
+    border-radius: 9999px;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    color: white;
+    backdrop-filter: blur(8px);
+  }
+  /* Dark mode: slightly more opaque for better contrast */
+  html[data-theme="dark"] .carousel-counter {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+</style>
 
 <script is:inline>
   /**
@@ -164,7 +334,6 @@ function coverOf(entry) {
     const leftOfIndex = (index) => {
       const target = slides[index];
       if (!target) return null;
-      // offsetLeft is relative to the scroll container for positioned children
       return target.offsetLeft;
     };
 
