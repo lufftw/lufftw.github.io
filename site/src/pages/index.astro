@@ -1,11 +1,12 @@
 ---
 /**
- * Home page (Logbook-style layout)
+ * Home page
  *
  * Structure:
  * - Header
  * - Page title + RSS
- * - Hero carousel (featured or recent posts)
+ * - Hero carousel (featured-only)
+ * - Featured post (single, editorial)
  * - Two-column layout:
  *   - Main content: latest posts list
  *   - Sidebar: search, about, categories, latest
@@ -15,7 +16,6 @@ import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import Card from "@/components/Card.astro";
 import Hr from "@/components/Hr.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
@@ -35,21 +35,37 @@ const posts = allPosts.filter(({ data }) => data.type === "post");
 // Sort posts by date (descending)
 const sortedPosts = getSortedPosts(posts);
 
-// Separate featured and non-featured posts
+// Editorially featured posts (can be 0..N)
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 
-// Select a single featured post for homepage display
-const featuredPost = featuredPosts[0];
+/**
+ * Hero carousel: featured-only
+ * - No fallback to latest posts
+ * - If there are no featured posts, hero carousel will not render
+ */
+const heroItems = featuredPosts.slice(0, 5);
 
-// Hero carousel data:
-// Prefer featured posts; fallback to latest posts
-const heroItems = (featuredPosts.length ? featuredPosts : sortedPosts).slice(0, 5);
+// Build a set of hero slugs to prevent duplication across sections
+const heroSlugs = new Set(heroItems.map((p) => p.slug));
 
-// Exclude hero items from the main list to avoid duplication
-const heroSlugs = new Set(heroItems.map(p => p.slug));
+/**
+ * Homepage single featured card:
+ * - Pick the first featured post that is NOT already shown in the hero carousel
+ * - This avoids showing the same post twice on the homepage
+ */
+const featuredPost = featuredPosts.find((p) => !heroSlugs.has(p.slug));
+
+/**
+ * Main list items:
+ * - Exclude hero items and the single featured card item (if present)
+ */
+const excludedSlugs = new Set([
+  ...heroItems.map((p) => p.slug),
+  featuredPost?.slug,
+]);
+
 const listItems = sortedPosts
-  .filter(p => !heroSlugs.has(p.slug))
+  .filter((p) => !excludedSlugs.has(p.slug))
   .slice(0, SITE.postPerIndex ?? 12);
 ---
 
@@ -83,10 +99,10 @@ const listItems = sortedPosts
         </p>
       </section>
 
-      <!-- Hero carousel -->
-      <HeroCarousel items={heroItems} />
+      <!-- Hero carousel (featured-only) -->
+      {heroItems.length > 0 && <HeroCarousel items={heroItems} />}
 
-      <!-- Featured post (single, editorial) -->
+      <!-- Featured post (single, editorial; not duplicated with hero) -->
       {featuredPost && (
         <section class="mt-10">
           <FeaturedPostCard {...featuredPost} />
@@ -102,10 +118,9 @@ const listItems = sortedPosts
           <Hr />
 
           <ul class="space-y-6">
-            {listItems.map((data) => (
+            {listItems.map((entry) => (
               <li>
-                {/* Reuse existing Card component for minimal refactor */}
-                <PostCardHorizontal {...data} />
+                <PostCardHorizontal {...entry} />
               </li>
             ))}
           </ul>
