@@ -125,6 +125,7 @@ function coverOf(entry) {
    * - Scroll by container width
    * - Track active slide via IntersectionObserver
    * - Sync dots and counter
+   * - Autoplay with pause-on-hover/focus and prefers-reduced-motion support
    */
   const root = document.querySelector("[data-hero-root]");
   const scroller = root?.querySelector("[data-carousel]");
@@ -139,7 +140,11 @@ function coverOf(entry) {
     const total = slides.length;
     if (totalEl) totalEl.textContent = String(total);
 
+    // Track active index in JS state (used by autoplay)
+    let activeIndex = 0;
+
     const setActive = (index) => {
+      activeIndex = index;
       if (currentEl) currentEl.textContent = String(index + 1);
 
       dots.forEach((dot, i) => {
@@ -173,24 +178,77 @@ function coverOf(entry) {
       (entries) => {
         let best = null;
         for (const e of entries) {
-          if (!best || e.intersectionRatio > best.intersectionRatio) {
-            best = e;
-          }
+          if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
         }
         if (!best || !best.isIntersecting) return;
 
         const idx = Number(best.target.getAttribute("data-index"));
         if (!Number.isNaN(idx)) setActive(idx);
       },
-      {
-        root: scroller,
-        threshold: [0.4, 0.6, 0.8],
-      }
+      { root: scroller, threshold: [0.4, 0.6, 0.8] }
     );
 
     slides.forEach((s) => io.observe(s));
 
+    // ---- Autoplay ---------------------------------------------------------
+    const AUTOPLAY_MS = 6000;
+
+    // Respect user accessibility preference
+    const prefersReducedMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let timer = null;
+    let paused = false;
+
+    const stopAutoplay = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+
+    const startAutoplay = () => {
+      if (prefersReducedMotion) return;
+      if (timer) return;
+
+      timer = setInterval(() => {
+        if (paused) return;
+
+        // Advance to next slide (wrap around)
+        const nextIndex = (activeIndex + 1) % total;
+        scrollToIndex(nextIndex);
+      }, AUTOPLAY_MS);
+    };
+
+    // Pause autoplay when user interacts (hover/focus/touch)
+    const pause = () => { paused = true; };
+    const resume = () => { paused = false; };
+
+    root.addEventListener("mouseenter", pause);
+    root.addEventListener("mouseleave", resume);
+    root.addEventListener("focusin", pause);
+    root.addEventListener("focusout", resume);
+
+    // Touch: pause while touching, resume shortly after
+    root.addEventListener("touchstart", pause, { passive: true });
+    root.addEventListener("touchend", () => {
+      // Small delay to avoid fighting the user's swipe momentum
+      setTimeout(resume, 800);
+    }, { passive: true });
+
+    // Start autoplay only if there are at least 2 slides
+    if (total >= 2) startAutoplay();
+
+    // ----------------------------------------------------------------------
+
     // Initialize state
     setActive(0);
+
+    // Ensure cleanup if the page is replaced (Astro client-side navigation)
+    document.addEventListener("astro:before-swap", () => {
+      stopAutoplay();
+      io.disconnect();
+    }, { once: true });
   }
 </script>
