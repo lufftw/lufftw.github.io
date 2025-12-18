@@ -1,0 +1,283 @@
+---
+/**
+ * /search page
+ *
+ * Client-side search UI that fetches a static JSON index from `/search.json`.
+ * - Reads query from URL parameter `?q=...`
+ * - Filters results by title/description/tags/categories
+ * - Renders results without external libraries
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+---
+
+<Layout title="Search">
+  <Header />
+
+  <main class="mx-auto w-full max-w-6xl px-4 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Search</h1>
+      <p class="mt-2 max-w-2xl text-sm text-slate-600">
+        Search across posts by title, description, tags, and categories.
+      </p>
+    </header>
+
+    <!-- Search input -->
+    <section class="rounded-2xl border border-slate-200 p-5">
+      <form id="search-form" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          id="q"
+          name="q"
+          class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring"
+          placeholder="Type keywords…"
+          autocomplete="off"
+        />
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            id="clear"
+            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Clear
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
+        <span class="rounded-full bg-slate-100 px-3 py-1">Tip: use multiple keywords</span>
+        <span class="rounded-full bg-slate-100 px-3 py-1">Example: "astro hero sidebar"</span>
+      </div>
+    </section>
+
+    <!-- Status -->
+    <section class="mt-6">
+      <div id="status" class="text-sm text-slate-600"></div>
+    </section>
+
+    <!-- Results -->
+    <section class="mt-4">
+      <ul id="results" class="space-y-4"></ul>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script is:inline>
+  /**
+   * Minimal client-side search:
+   * - Fetch `/search.json`
+   * - Tokenize user query
+   * - Score entries by matches
+   * - Render sorted results
+   */
+
+  const $ = (sel) => document.querySelector(sel);
+
+  const form = $("#search-form");
+  const input = $("#q");
+  const clearBtn = $("#clear");
+  const statusEl = $("#status");
+  const resultsEl = $("#results");
+
+  const getQueryParam = (key) => {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(key) || "";
+  };
+
+  const setQueryParam = (key, value) => {
+    const url = new URL(window.location.href);
+    if (!value) url.searchParams.delete(key);
+    else url.searchParams.set(key, value);
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const normalize = (s) => (s || "").toString().toLowerCase().trim();
+
+  const tokenize = (q) => {
+    // Split by spaces, collapse duplicates, remove empty
+    return Array.from(
+      new Set(
+        normalize(q)
+          .split(/\s+/g)
+          .map((t) => t.trim())
+          .filter(Boolean)
+      )
+    );
+  };
+
+  const safeText = (s) => (s || "").toString();
+
+  const escapeHtml = (s) =>
+    safeText(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  const highlight = (text, tokens) => {
+    // Very lightweight highlighting for readability (not regex-heavy)
+    let out = safeText(text);
+    for (const t of tokens) {
+      if (!t) continue;
+      const i = out.toLowerCase().indexOf(t);
+      if (i >= 0) {
+        const before = out.slice(0, i);
+        const hit = out.slice(i, i + t.length);
+        const after = out.slice(i + t.length);
+        out =
+          `${before}<mark class="rounded bg-yellow-200/60 px-1">${escapeHtml(hit)}</mark>${escapeHtml(after)}`;
+      } else {
+        out = escapeHtml(out);
+      }
+      // After first highlight pass, out contains HTML. Avoid compounding.
+      // This keeps highlighting minimal and stable.
+      break;
+    }
+    // If no tokens, escape entire text
+    if (tokens.length === 0) return escapeHtml(text);
+    return out;
+  };
+
+  const scoreEntry = (entry, tokens) => {
+    // Higher is better. Simple heuristic scoring.
+    const title = normalize(entry.title);
+    const desc = normalize(entry.description);
+    const tags = (entry.tags || []).map(normalize).join(" ");
+    const cats = (entry.categories || []).map(normalize).join(" ");
+
+    let score = 0;
+
+    for (const t of tokens) {
+      if (!t) continue;
+
+      if (title.includes(t)) score += 50;
+      if (desc.includes(t)) score += 20;
+      if (tags.includes(t)) score += 15;
+      if (cats.includes(t)) score += 10;
+    }
+
+    // Small boost for shorter titles matching (often more precise)
+    if (tokens.length > 0 && title.includes(tokens[0])) score += Math.max(0, 10 - title.length / 20);
+
+    return score;
+  };
+
+  const renderResults = (items, tokens, q) => {
+    resultsEl.innerHTML = "";
+
+    if (!q) {
+      statusEl.textContent = "Type a query to search.";
+      return;
+    }
+
+    if (items.length === 0) {
+      statusEl.textContent = `No results for "${q}".`;
+      return;
+    }
+
+    statusEl.textContent = `${items.length} result(s) for "${q}".`;
+
+    const html = items
+      .map((e) => {
+        const titleHtml = highlight(e.title, tokens);
+        const descHtml = highlight(e.description || "", tokens);
+
+        const metaParts = [];
+        if (e.datetime) metaParts.push(escapeHtml(e.datetime));
+        if (e.collection) metaParts.push(escapeHtml(e.collection.toUpperCase()));
+
+        const meta = metaParts.length ? metaParts.join(" • ") : "";
+
+        const tags =
+          (e.tags || []).length
+            ? (e.tags || [])
+                .slice(0, 8)
+                .map((t) => `<span class="rounded-full border border-slate-200 px-2 py-1 text-[11px] text-slate-600">${escapeHtml(t)}</span>`)
+                .join("")
+            : "";
+
+        return `
+          <li class="rounded-2xl border border-slate-200 p-5">
+            <a href="${escapeHtml(e.url)}" class="block">
+              <div class="text-lg font-semibold text-slate-900 hover:underline">${titleHtml}</div>
+              ${meta ? `<div class="mt-1 text-xs text-slate-500">${meta}</div>` : ""}
+              ${e.description ? `<p class="mt-3 text-sm text-slate-600">${descHtml}</p>` : ""}
+              ${tags ? `<div class="mt-3 flex flex-wrap gap-2">${tags}</div>` : ""}
+            </a>
+          </li>
+        `;
+      })
+      .join("");
+
+    resultsEl.innerHTML = html;
+  };
+
+  let INDEX = null;
+
+  const loadIndex = async () => {
+    if (INDEX) return INDEX;
+
+    statusEl.textContent = "Loading index…";
+
+    const res = await fetch("/search.json", { headers: { "accept": "application/json" } });
+    if (!res.ok) {
+      statusEl.textContent = "Failed to load search index.";
+      return [];
+    }
+
+    const data = await res.json();
+    INDEX = Array.isArray(data) ? data : [];
+    return INDEX;
+  };
+
+  const runSearch = async (q) => {
+    const tokens = tokenize(q);
+    const index = await loadIndex();
+
+    if (!q) {
+      renderResults([], [], "");
+      return;
+    }
+
+    // Compute scores and filter
+    const scored = index
+      .map((entry) => ({ entry, score: scoreEntry(entry, tokens) }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    // Render top results first (cap to keep UI snappy)
+    const top = scored.slice(0, 50).map((x) => x.entry);
+    renderResults(top, tokens, q);
+  };
+
+  // Initialize from URL
+  const initialQ = getQueryParam("q");
+  input.value = initialQ;
+  runSearch(initialQ);
+
+  // Submit handler
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    setQueryParam("q", q);
+    runSearch(q);
+  });
+
+  // Clear handler
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    setQueryParam("q", "");
+    renderResults([], [], "");
+    input.focus();
+  });
+</script>
