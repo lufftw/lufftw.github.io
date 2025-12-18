@@ -12,11 +12,11 @@ export async function getStaticPaths() {
   const allPosts = await getCollection("blog").then(p =>
     p.filter(({ data }) => !data.draft && !data.ogImage)
   );
-  const posts = allPosts.filter(({ data }) => data.type === "post");
+  const notes = allPosts.filter(({ data }) => data.type === "note");
 
-  return posts.map(post => ({
-    params: { slug: getPathFromEntry(post, false) },
-    props: post,
+  return notes.map(note => ({
+    params: { slug: getPathFromEntry(note, false) },
+    props: note,
   }));
 }
 
@@ -33,3 +33,4 @@ export const GET: APIRoute = async ({ props }) => {
     headers: { "Content-Type": "image/png" },
   });
 };
+

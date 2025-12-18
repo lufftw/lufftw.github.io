@@ -10,20 +10,21 @@ export interface Props {
 
 export async function getStaticPaths() {
   const allPosts = await getCollection("blog", ({ data }) => !data.draft);
-  const posts = allPosts.filter(({ data }) => data.type === "post");
-  const postResult = posts.map(post => ({
-    params: { slug: getPathFromEntry(post, false) },
-    props: { post },
+  const notes = allPosts.filter(({ data }) => data.type === "note");
+  const noteResult = notes.map(note => ({
+    params: { slug: getPathFromEntry(note, false) },
+    props: { post: note },
   }));
 
-  return postResult;
+  return noteResult;
 }
 
 const { post } = Astro.props;
 
 const allPosts = await getCollection("blog");
-const posts = allPosts.filter(({ data }) => data.type === "post");
-const sortedPosts = getSortedPosts(posts);
+const notes = allPosts.filter(({ data }) => data.type === "note");
+const sortedNotes = getSortedPosts(notes);
 ---
 
-<PostDetails post={post} posts={sortedPosts} />
+<PostDetails post={post} posts={sortedNotes} />
+

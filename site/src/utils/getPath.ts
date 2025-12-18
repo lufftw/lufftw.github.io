@@ -1,17 +1,20 @@
 import { BLOG_PATH } from "@/content.config";
 import { slugifyStr } from "./slugify";
+import type { CollectionEntry } from "astro:content";
 
 /**
- * Get full path of a blog post
+ * Get full path of a blog post or note
  * @param id - id of the blog post (aka slug)
  * @param filePath - the blog post full file location
- * @param includeBase - whether to include `/posts` in return value
- * @returns blog post path
+ * @param includeBase - whether to include base path (`/posts` or `/notes`) in return value
+ * @param type - type of the content ("post" or "note")
+ * @returns blog post or note path
  */
 export function getPath(
   id: string,
   filePath: string | undefined,
-  includeBase = true
+  includeBase = true,
+  type: "post" | "note" = "post"
 ) {
   const pathSegments = filePath
     ?.replace(BLOG_PATH, "")
@@ -21,7 +24,7 @@ export function getPath(
     .slice(0, -1) // remove the last segment_ file name_ since it's unnecessary
     .map(segment => slugifyStr(segment)); // slugify each segment path
 
-  const basePath = includeBase ? "/posts" : "";
+  const basePath = includeBase ? (type === "note" ? "/notes" : "/posts") : "";
 
   // Making sure `id` does not contain the directory
   const blogId = id.split("/");
@@ -33,4 +36,17 @@ export function getPath(
   }
 
   return [basePath, ...pathSegments, slug].join("/");
+}
+
+/**
+ * Get full path from a CollectionEntry
+ * @param entry - blog entry from content collection
+ * @param includeBase - whether to include base path (`/posts` or `/notes`) in return value
+ * @returns blog post or note path
+ */
+export function getPathFromEntry(
+  entry: CollectionEntry<"blog">,
+  includeBase = true
+) {
+  return getPath(entry.id, entry.filePath, includeBase, entry.data.type);
 }
