@@ -7,81 +7,50 @@ Following these steps ensures consistency between local development, CI, and Git
 
 ## 1. Prerequisites
 
-* **Operating System:** Windows
-* **Node.js version:** `20.x`
+* **Operating System:** Windows (PowerShell recommended)
+* **Node.js version:** `20.x` (or `18.x` for stability)
 * **Package manager:** `pnpm`
 * **Node version manager:** `nvm for Windows`
 
-> **Note:** The project uses Node 20 in both CI and deployment workflows. Local development should match this version.
+> **Note:** The project uses Node 20 in both CI and deployment workflows. Local development should match this version to avoid environment discrepancies.
 
 ---
 
 ## 2. Node Version Setup (via nvm)
 
-Ensure the correct Node.js version is active.
+Ensure the correct Node.js version is active before running any development commands.
 
 ### Check Installed Versions
-
-List all installed Node.js versions:
-
+List all Node.js versions currently installed on your system:
 ```bash
 nvm list
 
 ```
 
-This shows all Node.js versions installed on your system.
+### Switch to Target Version
 
-### Switch to Node Version
-
-Switch to the desired Node.js version (use the version number you need):
+Switch to Node 20 (or your project's required version):
 
 ```bash
 nvm use 20
+# Example for a specific patch version:
+# nvm use 20.18.0
 
 ```
 
-Or use a specific version:
+### Verify Environment
+
+Confirm that both Node.js and npm are correctly linked:
 
 ```bash
-nvm use 20.19.6
+node -v  # Expected: v20.x.x
+npm -v   # Expected: 10.x.x (or corresponding version)
 
 ```
 
-### Verify Node.js Version
+### Install Node (if missing)
 
-After switching, verify the active Node.js version:
-
-```bash
-node -v
-
-```
-
-**Expected output:**
-
-```text
-v20.x.x
-
-```
-
-### Verify npm Version
-
-Check the npm version that comes with the active Node.js installation:
-
-```bash
-npm -v
-
-```
-
-**Expected output:**
-
-```text
-10.x.x
-
-```
-
-### Install Node 20 (if not installed)
-
-If Node 20 is not installed:
+If Node 20 is not found in the list:
 
 ```bash
 nvm install 20
@@ -102,7 +71,7 @@ lufftw.github.io/
 ├─ .dev/
 └─ site/
    ├─ package.json
-   ├─ pnpm-lock.yaml
+   ├─ pnpm-lock.yaml  <-- Critical for dependency consistency
    └─ src/
 
 ```
@@ -113,24 +82,31 @@ lufftw.github.io/
 
 ## 4. Install Dependencies
 
-From the repository root:
+Navigate to the `site` directory and install packages. **pnpm** is the preferred manager for this project to ensure lockfile integrity.
 
 ```bash
 cd site
+
+# Recommended: Clean install based on lockfile
 pnpm install
+
+# Alternatively, if using npm:
+# npm ci (if package-lock.json exists)
+# npm install (if starting fresh)
 
 ```
 
-This step is required only on first setup or when `pnpm-lock.yaml` changes.
+This step is required only on first setup or when `pnpm-lock.yaml` / `package.json` changes.
 
 ---
 
 ## 5. Local Development Server
 
-Start the local development server with hot reload:
+Start the local development server with hot reload (Astro):
 
 ```bash
 pnpm dev
+# or: npm run dev
 
 ```
 
@@ -141,13 +117,13 @@ Local:   http://localhost:4321/
 
 ```
 
-Open the URL in a browser to view the site. Changes to source files will be reflected immediately.
+Open the URL in a browser. Changes to source files will be reflected immediately.
 
 ---
 
 ## 6. Production-Equivalent Build (Recommended)
 
-Before pushing changes to the `main` branch, always verify the production build.
+Before pushing changes to the `main` branch, always verify the production build locally to catch SSR or static generation errors.
 
 ```bash
 pnpm build
@@ -156,40 +132,38 @@ pnpm preview
 ```
 
 * `pnpm build`: Generates the static output in `site/dist/`.
-* `pnpm preview`: Serves the built site locally.
+* `pnpm preview`: Serves the production-ready files locally for testing.
 
-**Verify that the following routes load correctly:**
+**Verification Checklist:**
+Ensure the following routes render correctly:
 
-* `/`
-* `/posts`
-* `/notes`
-* `/topics`
-* `/tags`
-
-If these steps succeed locally, GitHub Pages deployment is expected to succeed as well.
+* `/` (Home)
+* `/posts` (Blog Posts)
+* `/notes` (Daily Notes)
+* `/topics` (Content Topics)
+* `/tags` (Content Tags)
 
 ---
 
 ## 7. Standard Local Workflow Summary
 
 ```bash
-# 1. Switch Node version
+# 1. Environment Check
 nvm use 20
 
-# 2. Go to site directory
+# 2. Enter workspace
 cd site
 
-# 3. Install (if needed) and run
-pnpm install
+# 3. Launch Dev Environment
+pnpm install   # only when needed
 pnpm dev
 
 ```
 
-**Before deployment:**
+**Final Verification before Deployment:**
 
 ```bash
-pnpm build
-pnpm preview
+pnpm build && pnpm preview
 
 ```
 
@@ -197,20 +171,16 @@ pnpm preview
 
 ## Appendix A: nvm for Windows Configuration Issue
 
-In some Windows environments, running `nvm list` may fail with the following error:
+In some Windows environments, running `nvm` commands may fail with:
 
 > `ERROR open \settings.txt: The system cannot find the file specified.`
 
-This indicates that `settings.txt` or related environment variables are missing or misconfigured.
-
 ### Resolution Summary
 
-1. **Check settings.txt:** Ensure `settings.txt` exists in the `nvm` root directory.
-2. **System Environment Variables:** Configure the following:
-* `NVM_HOME`
-* `NVM_SYMLINK`
+1. **Verify settings.txt:** Ensure it exists in the `%APPDATA%\nvm` or the nvm installation root.
+2. **Environment Variables:**
+* `NVM_HOME`: Path to the nvm folder.
+* `NVM_SYMLINK`: Path where the active Node symlink will be created.
 
 
-3. **Path Configuration:** Ensure the Node.js symlink directory is included in the system `PATH`.
-
-For detailed recovery steps, see the internal setup notes or reinitialize `nvm for Windows` with a clean configuration.
+3. **Path Check:** Ensure `%NVM_HOME%` and `%NVM_SYMLINK%` are in your System `PATH`.
