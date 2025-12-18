@@ -11,3 +11,4 @@ const getPostsByTopic = (posts: CollectionEntry<"blog">[], topic: string) =>
 
 export default getPostsByTopic;
 
+
