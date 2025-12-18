@@ -2,19 +2,23 @@
 /**
  * Header
  *
- * Fixes:
- * - Search is a plain link (/search/) instead of JS-triggered navigation
- * - Mobile menu JS no longer relies on document.currentScript
+ * Features:
+ * - Primary navigation (includes Archives)
+ * - Search link
+ * - Light/Dark mode toggle with sun/moon icons (AstroPaper-like)
+ * - Mobile menu overlay
  *
- * Result:
- * - Search ALWAYS works
- * - Mobile menu behavior preserved
+ * Notes:
+ * - Theme preference is saved in localStorage ("theme": "light" | "dark")
+ * - Respects system preference on first load
+ * - Script is wrapped in an IIFE (no top-level return)
  */
 
 const NAV_LINKS = [
   { label: "Posts", href: "/posts/" },
   { label: "Notes", href: "/notes/" },
   { label: "Topics", href: "/topics/" },
+  { label: "Archives", href: "/archives/" },
   { label: "About", href: "/about/" },
 ];
 
@@ -22,7 +26,290 @@ const SITE_TITLE = "Mingalaba";
 ---
 
 <header
-  class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur"
+  class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/70"
   data-site-header
 >
-  <div class="mx-auto flex max-w-6xl items-cen
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <!-- Brand -->
+    <a
+      href="/"
+      class="text-base font-semibold tracking-tight text-slate-900 hover:opacity-90 dark:text-slate-100"
+      aria-label="Go to homepage"
+    >
+      {SITE_TITLE}
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden items-center gap-6 md:flex" aria-label="Primary navigation">
+      {NAV_LINKS.map((item) => (
+        <a
+          href={item.href}
+          class="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      <!-- Search: plain link (always works) -->
+      <a
+        href="/search/"
+        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+        aria-label="Search"
+        title="Search"
+      >
+        <span aria-hidden="true">⌕</span>
+        <span class="ml-2 hidden sm:inline">Search</span>
+      </a>
+
+      <!-- Theme toggle -->
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+        data-theme-toggle
+        aria-label="Toggle theme"
+        title="Toggle theme"
+      >
+        <!-- Sun icon (shown in dark mode to indicate switching to light) -->
+        <svg
+          data-icon-sun
+          class="hidden h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <!-- Moon icon (shown in light mode to indicate switching to dark) -->
+        <svg
+          data-icon-moon
+          class="hidden h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M21 13.2A7.5 7.5 0 0 1 10.8 3 9 9 0 1 0 21 13.2Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <!-- Mobile menu toggle -->
+      <button
+        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 md:hidden"
+        data-menu-open
+        aria-label="Open menu"
+        title="Menu"
+        type="button"
+      >
+        ☰
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu overlay -->
+  <div
+    class="pointer-events-none fixed inset-0 z-50 opacity-0 transition-opacity"
+    data-menu-overlay
+  >
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40" data-menu-backdrop></div>
+
+    <!-- Panel -->
+    <div
+      class="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] translate-x-full bg-white shadow-xl transition-transform dark:bg-slate-950"
+      data-menu-panel
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile menu"
+    >
+      <div class="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-slate-800">
+        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          {SITE_TITLE}
+        </div>
+        <button
+          class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+          data-menu-close
+          aria-label="Close menu"
+          title="Close"
+          type="button"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-4 py-4">
+        <!-- Mobile actions -->
+        <div class="mb-4 grid gap-2">
+          <a
+            href="/search/"
+            class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            data-menu-link
+          >
+            ⌕ Search
+          </a>
+
+          <button
+            type="button"
+            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+            data-theme-toggle
+          >
+            Toggle theme
+          </button>
+        </div>
+
+        <nav class="flex flex-col gap-2" aria-label="Mobile navigation">
+          {NAV_LINKS.map((item) => (
+            <a
+              href={item.href}
+              class="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+              data-menu-link
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <div class="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-500">
+          Navigation and theme controls.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (() => {
+      /**
+       * Theme controller:
+       * - localStorage key: "theme" => "light" | "dark"
+       * - first load: prefer saved value, otherwise system preference
+       */
+      const storageKey = "theme";
+
+      const prefersDark = () =>
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      const getSavedTheme = () => {
+        try {
+          return localStorage.getItem(storageKey);
+        } catch {
+          return null;
+        }
+      };
+
+      const setSavedTheme = (theme) => {
+        try {
+          localStorage.setItem(storageKey, theme);
+        } catch {
+          // ignore
+        }
+      };
+
+      const applyTheme = (theme) => {
+        const root = document.documentElement;
+        if (theme === "dark") root.classList.add("dark");
+        else root.classList.remove("dark");
+        updateThemeIcons();
+      };
+
+      const updateThemeIcons = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        document.querySelectorAll("[data-icon-sun]").forEach((el) => {
+          el.classList.toggle("hidden", !isDark);
+        });
+        document.querySelectorAll("[data-icon-moon]").forEach((el) => {
+          el.classList.toggle("hidden", isDark);
+        });
+      };
+
+      const initTheme = () => {
+        const saved = getSavedTheme();
+        const initial = saved === "light" || saved === "dark" ? saved : (prefersDark() ? "dark" : "light");
+        applyTheme(initial);
+      };
+
+      const toggleTheme = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        const next = isDark ? "light" : "dark";
+        applyTheme(next);
+        setSavedTheme(next);
+      };
+
+      initTheme();
+
+      // Bind theme toggles (desktop + mobile)
+      document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+        btn.addEventListener("click", () => toggleTheme());
+      });
+
+      /**
+       * Mobile menu controller
+       */
+      const header = document.querySelector("[data-site-header]");
+      if (!header) return;
+
+      const overlay = header.querySelector("[data-menu-overlay]");
+      const panel = header.querySelector("[data-menu-panel]");
+      const openBtn = header.querySelector("[data-menu-open]");
+      const closeBtn = header.querySelector("[data-menu-close]");
+      const backdrop = header.querySelector("[data-menu-backdrop]");
+      const menuLinks = Array.from(header.querySelectorAll("[data-menu-link]"));
+
+      const openMenu = () => {
+        if (!overlay || !panel) return;
+        overlay.classList.remove("pointer-events-none", "opacity-0");
+        overlay.classList.add("opacity-100");
+        panel.classList.remove("translate-x-full");
+        document.documentElement.style.overflow = "hidden";
+      };
+
+      const closeMenu = () => {
+        if (!overlay || !panel) return;
+        overlay.classList.add("pointer-events-none", "opacity-0");
+        overlay.classList.remove("opacity-100");
+        panel.classList.add("translate-x-full");
+        document.documentElement.style.overflow = "";
+      };
+
+      openBtn?.addEventListener("click", openMenu);
+      closeBtn?.addEventListener("click", closeMenu);
+      backdrop?.addEventListener("click", closeMenu);
+      menuLinks.forEach((a) => a.addEventListener("click", closeMenu));
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+      });
+
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          document.documentElement.style.overflow = "";
+        },
+        { once: true }
+      );
+    })();
+  </script>
+</header>
