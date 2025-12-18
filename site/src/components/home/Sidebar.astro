@@ -1,0 +1,106 @@
+---
+/**
+ * Sidebar
+ *
+ * Displays auxiliary widgets commonly found in information-heavy blogs:
+ * - Search
+ * - About
+ * - Categories
+ * - Latest posts
+ */
+
+import { getPathFromEntry } from "@/utils/getPath";
+
+const { entries } = Astro.props;
+
+// Aggregate category counts from frontmatter
+const categories = new Map();
+
+for (const entry of entries) {
+  for (const category of entry.data?.categories ?? []) {
+    categories.set(category, (categories.get(category) ?? 0) + 1);
+  }
+}
+
+// Prepare derived data
+const latest = entries.slice(0, 5);
+const categoryList = [...categories.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 8);
+---
+
+<div class="space-y-8">
+  <!-- Search widget -->
+  <div class="rounded-2xl border border-slate-200 p-5">
+    <h3 class="text-sm font-semibold tracking-wide">Search</h3>
+
+    <form class="mt-3 flex gap-2" action="/search">
+      <input
+        name="q"
+        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring"
+        placeholder="Type to search…"
+      />
+      <button
+        type="submit"
+        class="rounded-xl border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
+      >
+        Go
+      </button>
+    </form>
+  </div>
+
+  <!-- About widget -->
+  <div class="rounded-2xl border border-slate-200 p-5">
+    <h3 class="text-sm font-semibold tracking-wide">About</h3>
+    <p class="mt-3 text-sm text-slate-600">
+      Engineer / PhD researcher. Systems, algorithms, and long-term technical notes.
+    </p>
+  </div>
+
+  <!-- Categories widget -->
+  <div class="rounded-2xl border border-slate-200 p-5">
+    <h3 class="text-sm font-semibold tracking-wide">Categories</h3>
+
+    {categoryList.length === 0 ? (
+      <p class="mt-3 text-sm text-slate-500">No categories yet.</p>
+    ) : (
+      <ul class="mt-3 space-y-2 text-sm">
+        {categoryList.map(([name, count]) => (
+          <li class="flex items-center justify-between">
+            <a
+              href={`/categories/${String(name).toLowerCase()}/`}
+              class="text-slate-700 hover:underline"
+            >
+              {name}
+            </a>
+            <span class="text-slate-400">{count}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <!-- Latest posts widget -->
+  <div class="rounded-2xl border border-slate-200 p-5">
+    <h3 class="text-sm font-semibold tracking-wide">Latest</h3>
+
+    <ul class="mt-3 space-y-3 text-sm">
+      {latest.map((entry) => (
+        <li>
+          <a
+            href={getPathFromEntry(entry)}
+            class="text-slate-700 hover:underline"
+          >
+            {entry.data?.title ?? entry.slug}
+          </a>
+
+          {entry.data?.datetime && (
+            <div class="text-xs text-slate-400">
+              {entry.data.datetime}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

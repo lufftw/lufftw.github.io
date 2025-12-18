@@ -1,0 +1,103 @@
+---
+/**
+ * HeroCarousel
+ *
+ * Displays featured or recent posts in a horizontal scroll-snap carousel.
+ * No external JS libraries are used for maximum stability and maintainability.
+ */
+
+import { getPathFromEntry } from "@/utils/getPath";
+
+const { items } = Astro.props;
+
+// Resolve hero image source from frontmatter
+function coverOf(entry) {
+  return (
+    entry.data?.heroImage ||
+    entry.data?.coverImage ||
+    entry.data?.image
+  );
+}
+---
+
+<section class="mt-4">
+  <div class="relative overflow-hidden rounded-2xl border border-slate-200">
+    <!-- Scrollable carousel container -->
+    <div
+      class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth"
+      style="scrollbar-width: none;"
+      data-carousel
+    >
+      {items.map((entry) => (
+        <article class="relative h-[320px] w-full flex-none snap-start md:h-[420px]">
+          <a href={getPathFromEntry(entry)} class="block h-full w-full">
+            {coverOf(entry) ? (
+              <img
+                src={coverOf(entry)}
+                alt={entry.data?.title ?? entry.slug}
+                class="h-full w-full object-cover"
+                loading="eager"
+              />
+            ) : (
+              <div class="h-full w-full bg-slate-100" />
+            )}
+
+            <!-- Gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+            <!-- Text overlay -->
+            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <h2 class="text-xl font-semibold leading-snug md:text-3xl">
+                {entry.data?.title ?? entry.slug}
+              </h2>
+
+              {entry.data?.datetime && (
+                <div class="mt-2 text-sm opacity-90">
+                  {entry.data.datetime}
+                </div>
+              )}
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Navigation controls -->
+    <button
+      type="button"
+      class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+      data-prev
+      aria-label="Previous slide"
+    >
+      ‹
+    </button>
+
+    <button
+      type="button"
+      class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+      data-next
+      aria-label="Next slide"
+    >
+      ›
+    </button>
+  </div>
+</section>
+
+<script is:inline>
+  /**
+   * Simple carousel navigation using scrollBy.
+   * Scroll distance equals the container width.
+   */
+  const root = document.currentScript.closest("section");
+  const scroller = root.querySelector("[data-carousel]");
+  const prev = root.querySelector("[data-prev]");
+  const next = root.querySelector("[data-next]");
+
+  const scrollByOne = (direction) => {
+    const width = scroller.clientWidth;
+    scroller.scrollBy({ left: direction * width, behavior: "smooth" });
+  };
+
+  prev?.addEventListener("click", () => scrollByOne(-1));
+  next?.addEventListener("click", () => scrollByOne(1));
+</script>
