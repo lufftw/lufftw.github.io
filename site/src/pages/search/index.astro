@@ -3,9 +3,10 @@
  * /search page
  *
  * Client-side search UI that fetches a static JSON index from `/search.json`.
- * - Reads query from URL parameter `?q=...`
- * - Filters results by title/description/tags/categories
- * - Renders results without external libraries
+ * Index includes BOTH posts and notes and shows a type badge in results.
+ *
+ * Query param:
+ * - ?q=...
  */
 
 import Layout from "@/layouts/Layout.astro";
@@ -20,7 +21,7 @@ import Footer from "@/components/Footer.astro";
     <header class="mb-8">
       <h1 class="text-3xl font-bold tracking-tight text-slate-900">Search</h1>
       <p class="mt-2 max-w-2xl text-sm text-slate-600">
-        Search across posts by title, description, tags, and categories.
+        Search across posts and notes by title, description, tags, and categories.
       </p>
     </header>
 
@@ -103,7 +104,6 @@ import Footer from "@/components/Footer.astro";
   const normalize = (s) => (s || "").toString().toLowerCase().trim();
 
   const tokenize = (q) => {
-    // Split by spaces, collapse duplicates, remove empty
     return Array.from(
       new Set(
         normalize(q)
@@ -124,32 +124,18 @@ import Footer from "@/components/Footer.astro";
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
 
-  const highlight = (text, tokens) => {
-    // Very lightweight highlighting for readability (not regex-heavy)
-    let out = safeText(text);
-    for (const t of tokens) {
-      if (!t) continue;
-      const i = out.toLowerCase().indexOf(t);
-      if (i >= 0) {
-        const before = out.slice(0, i);
-        const hit = out.slice(i, i + t.length);
-        const after = out.slice(i + t.length);
-        out =
-          `${before}<mark class="rounded bg-yellow-200/60 px-1">${escapeHtml(hit)}</mark>${escapeHtml(after)}`;
-      } else {
-        out = escapeHtml(out);
-      }
-      // After first highlight pass, out contains HTML. Avoid compounding.
-      // This keeps highlighting minimal and stable.
-      break;
-    }
-    // If no tokens, escape entire text
-    if (tokens.length === 0) return escapeHtml(text);
-    return out;
+  const typeLabel = (t) => {
+    if (t === "note") return "NOTE";
+    return "POST";
+  };
+
+  const typeBadge = (t) => {
+    const label = typeLabel(t);
+    // Keep badge styling neutral and consistent with Logbook look.
+    return `<span class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600">${label}</span>`;
   };
 
   const scoreEntry = (entry, tokens) => {
-    // Higher is better. Simple heuristic scoring.
     const title = normalize(entry.title);
     const desc = normalize(entry.description);
     const tags = (entry.tags || []).map(normalize).join(" ");
@@ -166,8 +152,8 @@ import Footer from "@/components/Footer.astro";
       if (cats.includes(t)) score += 10;
     }
 
-    // Small boost for shorter titles matching (often more precise)
-    if (tokens.length > 0 && title.includes(tokens[0])) score += Math.max(0, 10 - title.length / 20);
+    // Mild boost for featured content (helps "curated" items surface)
+    if (entry.featured) score += 5;
 
     return score;
   };
@@ -189,14 +175,11 @@ import Footer from "@/components/Footer.astro";
 
     const html = items
       .map((e) => {
-        const titleHtml = highlight(e.title, tokens);
-        const descHtml = highlight(e.description || "", tokens);
-
         const metaParts = [];
         if (e.datetime) metaParts.push(escapeHtml(e.datetime));
-        if (e.collection) metaParts.push(escapeHtml(e.collection.toUpperCase()));
+        metaParts.push(typeBadge(e.type));
 
-        const meta = metaParts.length ? metaParts.join(" • ") : "";
+        const meta = metaParts.length ? metaParts.join(' <span class="mx-1 text-slate-300">•</span> ') : "";
 
         const tags =
           (e.tags || []).length
@@ -209,9 +192,11 @@ import Footer from "@/components/Footer.astro";
         return `
           <li class="rounded-2xl border border-slate-200 p-5">
             <a href="${escapeHtml(e.url)}" class="block">
-              <div class="text-lg font-semibold text-slate-900 hover:underline">${titleHtml}</div>
-              ${meta ? `<div class="mt-1 text-xs text-slate-500">${meta}</div>` : ""}
-              ${e.description ? `<p class="mt-3 text-sm text-slate-600">${descHtml}</p>` : ""}
+              <div class="text-lg font-semibold text-slate-900 hover:underline">${escapeHtml(e.title)}</div>
+              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                ${meta}
+              </div>
+              ${e.description ? `<p class="mt-3 text-sm text-slate-600">${escapeHtml(e.description)}</p>` : ""}
               ${tags ? `<div class="mt-3 flex flex-wrap gap-2">${tags}</div>` : ""}
             </a>
           </li>
@@ -229,7 +214,7 @@ import Footer from "@/components/Footer.astro";
 
     statusEl.textContent = "Loading index…";
 
-    const res = await fetch("/search.json", { headers: { "accept": "application/json" } });
+    const res = await fetch("/search.json", { headers: { accept: "application/json" } });
     if (!res.ok) {
       statusEl.textContent = "Failed to load search index.";
       return [];
@@ -249,13 +234,11 @@ import Footer from "@/components/Footer.astro";
       return;
     }
 
-    // Compute scores and filter
     const scored = index
       .map((entry) => ({ entry, score: scoreEntry(entry, tokens) }))
       .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score);
 
-    // Render top results first (cap to keep UI snappy)
     const top = scored.slice(0, 50).map((x) => x.entry);
     renderResults(top, tokens, q);
   };
