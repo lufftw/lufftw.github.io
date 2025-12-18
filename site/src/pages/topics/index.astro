@@ -1,4 +1,11 @@
 ---
+/**
+ * /topics
+ *
+ * Topic index page.
+ * Uses getUniqueTopics() which aggregates topics across BOTH posts and notes.
+ */
+
 import { getCollection } from "astro:content";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -8,19 +15,18 @@ import Footer from "@/components/Footer.astro";
 import getUniqueTopics from "@/utils/getUniqueTopics";
 import { SITE } from "@/config";
 
-const posts = await getCollection("blog");
-
-let topics = getUniqueTopics(posts);
+const entries = await getCollection("blog");
+const topics = getUniqueTopics(entries);
 ---
 
 <Layout title={`Topics | ${SITE.title}`}>
   <Header />
   <Main pageTitle="Topics" pageDesc="High-level topics and themes.">
     <ul>
-      {topics.map(({ topic, topicName }) => <Topic {topic} {topicName} size="lg" />)}
+      {topics.map(({ topic, topicName }) => (
+        <Topic topic={topic} topicName={topicName} size="lg" />
+      ))}
     </ul>
   </Main>
   <Footer />
 </Layout>
-
-

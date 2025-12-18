@@ -1,25 +1,34 @@
+/**
+ * getUniqueTopics
+ *
+ * Returns a sorted list of unique topics derived from frontmatter `topics`.
+ *
+ * Includes BOTH posts and notes:
+ * - data.type === "post" || data.type === "note"
+ *
+ * Output shape is kept identical to the original:
+ * - { topic, topicName }[]
+ */
+
 import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "./slugify";
-import postFilter from "./postFilter";
 
 interface Topic {
   topic: string;
   topicName: string;
 }
 
-const getUniqueTopics = (posts: CollectionEntry<"blog">[]) => {
-  const topics: Topic[] = posts
-    .filter(postFilter)
-    .flatMap(post => post.data.topics || [])
-    .map(topic => ({ topic: slugifyStr(topic), topicName: topic }))
-    .filter(
-      (value, index, self) =>
-        self.findIndex(topic => topic.topic === value.topic) === index
-    )
-    .sort((topicA, topicB) => topicA.topic.localeCompare(topicB.topic));
+const getUniqueTopics = (entries: CollectionEntry<"blog">[]) => {
+  const topics: Topic[] = entries
+    .filter(({ data }) => data.type === "post" || data.type === "note")
+    .flatMap(entry => entry.data.topics || [])
+    .map(topicName => ({ topic: slugifyStr(topicName), topicName }))
+    .filter((value, index, self) => {
+      return self.findIndex(t => t.topic === value.topic) === index;
+    })
+    .sort((a, b) => a.topic.localeCompare(b.topic));
+
   return topics;
 };
 
 export default getUniqueTopics;
-
-
