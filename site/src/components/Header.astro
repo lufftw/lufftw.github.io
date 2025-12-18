@@ -2,16 +2,16 @@
 /**
  * Header
  *
- * Features:
- * - Primary navigation (includes Archives)
+ * - Desktop nav + mobile overlay menu
  * - Search link
- * - Light/Dark mode toggle with sun/moon icons (AstroPaper-like)
- * - Mobile menu overlay
+ * - Theme toggle button (desktop + mobile)
  *
- * Notes:
- * - Theme preference is saved in localStorage ("theme": "light" | "dark")
- * - Respects system preference on first load
- * - Script is wrapped in an IIFE (no top-level return)
+ * Theme logic is NOT implemented here to avoid conflicts.
+ * This component only provides:
+ * - #theme-btn (desktop)
+ * - [data-theme-toggle] (desktop + mobile)
+ * Your global theme script should listen to these and toggle `html.dark`
+ * while writing localStorage key `theme` = "light" | "dark".
  */
 
 const NAV_LINKS = [
@@ -53,7 +53,7 @@ const SITE_TITLE = "Mingalaba";
 
     <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- Search: plain link (always works) -->
+      <!-- Search -->
       <a
         href="/search/"
         class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
@@ -64,18 +64,35 @@ const SITE_TITLE = "Mingalaba";
         <span class="ml-2 hidden sm:inline">Search</span>
       </a>
 
-      <!-- Theme toggle -->
+      <!-- Theme toggle (desktop) -->
       <button
+        id="theme-btn"
         type="button"
         class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
         data-theme-toggle
         aria-label="Toggle theme"
         title="Toggle theme"
       >
-        <!-- Sun icon (shown in dark mode to indicate switching to light) -->
+        <!-- Moon: shown in light mode -->
         <svg
-          data-icon-sun
-          class="hidden h-5 w-5"
+          class="h-5 w-5 block dark:hidden"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M21 13.2A7.5 7.5 0 0 1 10.8 3 9 9 0 1 0 21 13.2Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <!-- Sun: shown in dark mode -->
+        <svg
+          class="h-5 w-5 hidden dark:block"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -90,24 +107,6 @@ const SITE_TITLE = "Mingalaba";
           />
           <path
             d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-
-        <!-- Moon icon (shown in light mode to indicate switching to dark) -->
-        <svg
-          data-icon-moon
-          class="hidden h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M21 13.2A7.5 7.5 0 0 1 10.8 3 9 9 0 1 0 21 13.2Z"
             stroke="currentColor"
             stroke-width="2"
             stroke-linecap="round"
@@ -149,6 +148,7 @@ const SITE_TITLE = "Mingalaba";
         <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">
           {SITE_TITLE}
         </div>
+
         <button
           class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
           data-menu-close
@@ -171,6 +171,7 @@ const SITE_TITLE = "Mingalaba";
             ⌕ Search
           </a>
 
+          <!-- Theme toggle (mobile) -->
           <button
             type="button"
             class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
@@ -201,73 +202,6 @@ const SITE_TITLE = "Mingalaba";
 
   <script is:inline>
     (() => {
-      /**
-       * Theme controller:
-       * - localStorage key: "theme" => "light" | "dark"
-       * - first load: prefer saved value, otherwise system preference
-       */
-      const storageKey = "theme";
-
-      const prefersDark = () =>
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      const getSavedTheme = () => {
-        try {
-          return localStorage.getItem(storageKey);
-        } catch {
-          return null;
-        }
-      };
-
-      const setSavedTheme = (theme) => {
-        try {
-          localStorage.setItem(storageKey, theme);
-        } catch {
-          // ignore
-        }
-      };
-
-      const applyTheme = (theme) => {
-        const root = document.documentElement;
-        if (theme === "dark") root.classList.add("dark");
-        else root.classList.remove("dark");
-        updateThemeIcons();
-      };
-
-      const updateThemeIcons = () => {
-        const isDark = document.documentElement.classList.contains("dark");
-        document.querySelectorAll("[data-icon-sun]").forEach((el) => {
-          el.classList.toggle("hidden", !isDark);
-        });
-        document.querySelectorAll("[data-icon-moon]").forEach((el) => {
-          el.classList.toggle("hidden", isDark);
-        });
-      };
-
-      const initTheme = () => {
-        const saved = getSavedTheme();
-        const initial = saved === "light" || saved === "dark" ? saved : (prefersDark() ? "dark" : "light");
-        applyTheme(initial);
-      };
-
-      const toggleTheme = () => {
-        const isDark = document.documentElement.classList.contains("dark");
-        const next = isDark ? "light" : "dark";
-        applyTheme(next);
-        setSavedTheme(next);
-      };
-
-      initTheme();
-
-      // Bind theme toggles (desktop + mobile)
-      document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
-        btn.addEventListener("click", () => toggleTheme());
-      });
-
-      /**
-       * Mobile menu controller
-       */
       const header = document.querySelector("[data-site-header]");
       if (!header) return;
 
@@ -303,6 +237,7 @@ const SITE_TITLE = "Mingalaba";
         if (e.key === "Escape") closeMenu();
       });
 
+      // If a page transition happens while menu is open, restore scrolling
       document.addEventListener(
         "astro:before-swap",
         () => {
