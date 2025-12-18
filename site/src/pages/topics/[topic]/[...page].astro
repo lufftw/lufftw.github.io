@@ -1,4 +1,20 @@
 ---
+/**
+ * /topics/[topic]/[...page]
+ *
+ * Topic detail listing page with pagination.
+ *
+ * Changes:
+ * - Includes BOTH posts and notes from the same collection:
+ *   data.type === "post" || data.type === "note"
+ * - Uses getUniqueTopics() for topic slugs and display names
+ * - Uses getPostsByTopic() (now topicEntries) to filter entries by topic slug
+ *
+ * Notes:
+ * - Keeps your existing Layout/Main/Pagination structure.
+ * - Keeps Card rendering for minimal refactor.
+ */
+
 import { getCollection } from "astro:content";
 import type { GetStaticPathsOptions } from "astro";
 import Main from "@/layouts/Main.astro";
@@ -12,13 +28,19 @@ import getPostsByTopic from "@/utils/getPostsByTopic";
 import { SITE } from "@/config";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = await getCollection("blog");
-  const topics = getUniqueTopics(posts);
+  const all = await getCollection("blog");
+
+  // Include both posts and notes for topic routing
+  const entries = all.filter(
+    ({ data }) => data.type === "post" || data.type === "note"
+  );
+
+  const topics = getUniqueTopics(entries);
 
   return topics.flatMap(({ topic, topicName }) => {
-    const topicPosts = getPostsByTopic(posts, topic);
+    const topicEntries = getPostsByTopic(entries, topic);
 
-    return paginate(topicPosts, {
+    return paginate(topicEntries, {
       params: { topic },
       props: { topicName },
       pageSize: SITE.postPerPage,
@@ -26,27 +48,25 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   });
 }
 
-const params = Astro.params;
-const { topic } = params;
+const { topic } = Astro.params;
 const { page, topicName } = Astro.props;
 ---
 
 <Layout title={`Topic: ${topicName} | ${SITE.title}`}>
   <Header />
   <Main
-    pageTitle={[`Topic:`, `${topicName}`]}
+    pageTitle={["Topic:", `${topicName}`]}
     titleTransition={topic}
-    pageDesc={`All the articles with the topic "${topicName}".`}
+    pageDesc={`All the entries with the topic "${topicName}".`}
   >
     <h1 slot="title" transition:name={topic}>{`Topic:${topic}`}</h1>
+
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map((entry) => <Card {...entry} />)}
     </ul>
   </Main>
 
-  <Pagination {page} />
+  <Pagination page={page} />
 
   <Footer noMarginTop={page.lastPage > 1} />
 </Layout>
-
-
