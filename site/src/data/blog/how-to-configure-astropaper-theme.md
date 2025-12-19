@@ -72,7 +72,7 @@ Here are SITE configuration options
 
 ## Update layout width
 
-The default `max-width` for the entire blog is `768px` (`max-w-3xl`). If you'd like to change it, you can easily update the `max-w-app` utility in your `global.css`. For instance:
+The default `max-width` for the entire blog is `1152px` (`max-w-6xl`). If you'd like to change it, you can easily update the `max-w-app` utility in your `global.css`. For instance:
 
 ```css file=src/styles/global.css
 @utility max-w-app {
