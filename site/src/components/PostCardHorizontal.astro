@@ -23,10 +23,8 @@ const entry = Astro.props;
 const { title, description } = entry.data;
 
 // Resolve cover image from frontmatter (non-mandatory)
-const coverImage =
-  entry.data?.heroImage ||
-  entry.data?.coverImage ||
-  entry.data?.image;
+const ogImage = entry.data?.ogImage;
+const coverImage = typeof ogImage === "string" ? ogImage : ogImage?.src;
 
 // Title props shared by h2/h3 if needed later
 const headerProps = {

@@ -30,21 +30,21 @@ export const GET: APIRoute = async () => {
       return {
         // Identity
         collection: entry.collection,
-        slug: entry.slug,
+        slug: entry.id,
         url: getPathFromEntry(entry),
 
         // Content type
         type,
 
         // Searchable text fields
-        title: entry.data?.title ?? entry.slug,
+        title: entry.data?.title ?? entry.id,
         description: entry.data?.description ?? "",
 
         // Optional metadata
-        datetime: entry.data?.datetime ?? "",
+        datetime: entry.data?.pubDatetime?.toISOString() ?? "",
         tags: Array.isArray(entry.data?.tags) ? entry.data.tags : [],
-        categories: Array.isArray(entry.data?.categories)
-          ? entry.data.categories
+        categories: Array.isArray(entry.data?.topics)
+          ? entry.data.topics
           : [],
         featured: Boolean(entry.data?.featured),
       };

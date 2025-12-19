@@ -22,10 +22,8 @@ const entry = Astro.props;
 const { title, description, tags } = entry.data;
 
 // Resolve cover image from frontmatter
-const coverImage =
-  entry.data?.heroImage ||
-  entry.data?.coverImage ||
-  entry.data?.image;
+const ogImage = entry.data?.ogImage;
+const coverImage = typeof ogImage === "string" ? ogImage : ogImage?.src;
 
 // Shared title props
 const headerProps = {

@@ -16,19 +16,20 @@
  */
 
 import { getPathFromEntry } from "@/utils/getPath";
+import type { CollectionEntry } from "astro:content";
 
 const { entries } = Astro.props;
 
 // Featured items are derived from the passed entries list
-const featured = entries.filter((e) => e.data?.featured === true).slice(0, 5);
+const featured = entries.filter((e: CollectionEntry<"blog">) => e.data?.featured === true).slice(0, 5);
 
 // Latest items (assumes entries are already sorted newest-first by the page)
 const latest = entries.slice(0, 5);
 
-// Aggregate category counts from frontmatter
-const categories = new Map();
+// Aggregate category counts from frontmatter (using topics instead of categories)
+const categories = new Map<string, number>();
 for (const entry of entries) {
-  for (const category of entry.data?.categories ?? []) {
+  for (const category of entry.data?.topics ?? []) {
     categories.set(category, (categories.get(category) ?? 0) + 1);
   }
 }
@@ -80,17 +81,17 @@ const categoryList = [...categories.entries()]
       <p class="mt-3 text-sm text-slate-500 dark:text-slate-500">No featured posts yet.</p>
     ) : (
       <ul class="mt-3 space-y-3 text-sm">
-        {featured.map((entry) => (
+        {featured.map((entry: CollectionEntry<"blog">) => (
           <li class="group">
             <a
               href={getPathFromEntry(entry)}
               class="block font-medium text-slate-800 group-hover:underline dark:text-slate-200"
             >
-              {entry.data?.title ?? entry.slug}
+              {entry.data?.title ?? entry.id}
             </a>
-            {entry.data?.datetime && (
+            {entry.data?.pubDatetime && (
               <div class="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                {entry.data.datetime}
+                {entry.data.pubDatetime.toLocaleDateString()}
               </div>
             )}
           </li>
@@ -127,17 +128,17 @@ const categoryList = [...categories.entries()]
     <h3 class="text-sm font-semibold tracking-wide text-slate-900 dark:text-slate-100">Latest</h3>
 
     <ul class="mt-3 space-y-3 text-sm">
-      {latest.map((entry) => (
+      {latest.map((entry: CollectionEntry<"blog">) => (
         <li class="group">
           <a
             href={getPathFromEntry(entry)}
             class="block font-medium text-slate-800 group-hover:underline dark:text-slate-200"
           >
-            {entry.data?.title ?? entry.slug}
+            {entry.data?.title ?? entry.id}
           </a>
-          {entry.data?.datetime && (
+          {entry.data?.pubDatetime && (
             <div class="mt-1 text-xs text-slate-400 dark:text-slate-500">
-              {entry.data.datetime}
+              {entry.data.pubDatetime.toLocaleDateString()}
             </div>
           )}
         </li>

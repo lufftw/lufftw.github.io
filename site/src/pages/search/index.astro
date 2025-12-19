@@ -158,7 +158,7 @@ import Footer from "@/components/Footer.astro";
     return score;
   };
 
-  const renderResults = (items, tokens, q) => {
+  const renderResults = (items, q) => {
     resultsEl.innerHTML = "";
 
     if (!q) {
@@ -230,7 +230,7 @@ import Footer from "@/components/Footer.astro";
     const index = await loadIndex();
 
     if (!q) {
-      renderResults([], [], "");
+      renderResults([], "");
       return;
     }
 
@@ -240,7 +240,7 @@ import Footer from "@/components/Footer.astro";
       .sort((a, b) => b.score - a.score);
 
     const top = scored.slice(0, 50).map((x) => x.entry);
-    renderResults(top, tokens, q);
+    renderResults(top, q);
   };
 
   // Initialize from URL
@@ -260,7 +260,7 @@ import Footer from "@/components/Footer.astro";
   clearBtn.addEventListener("click", () => {
     input.value = "";
     setQueryParam("q", "");
-    renderResults([], [], "");
+    renderResults([], "");
     input.focus();
   });
 </script>
