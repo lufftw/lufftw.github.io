@@ -62,6 +62,18 @@ html[data-theme="dark"] {
   @apply underline decoration-wavy decoration-2 underline-offset-4;
 }
 
+.active-nav-weak {
+  @apply underline decoration-wavy decoration-2 underline-offset-4 opacity-60;
+}
+
+.browse-dropdown-container {
+  @apply sm:relative;
+}
+
+.browse-dropdown {
+  z-index: 60;
+}
+
 /* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */
 /* Anything that has been anchored to should have extra scroll margin */
 :target {

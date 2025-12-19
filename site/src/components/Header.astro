@@ -20,6 +20,16 @@ const isActive = (path: string) => {
   const pathArray = path.split("/").filter((p) => p.trim());
   return currentPath === path || currentPathArray[0] === pathArray[0];
 };
+
+// Check if any Browse child page is active
+const isBrowseActive = () => {
+  return isActive("/topics") || isActive("/categories") || isActive("/tags");
+};
+
+// Check active state for Browse child items (strong active)
+const isBrowseChildActive = (path: string) => {
+  return isActive(path);
+};
 ---
 
 <header class="sticky top-0 z-50 border-b border-skin-line bg-background/80 backdrop-blur-md transition-all">
@@ -82,10 +92,89 @@ const isActive = (path: string) => {
             </a>
           </li>
 
-          <li class="col-span-2">
-            <a href="/topics" class:list={{ "active-nav": isActive("/topics") }}>
-              Topics
-            </a>
+          <!-- Browse Dropdown (Desktop: dropdown, Mobile: accordion) -->
+          <li class="col-span-2 browse-dropdown-container relative">
+            <button
+              id="browse-toggle"
+              class:list={[
+                "w-full text-left font-medium hover:text-accent sm:px-2 sm:py-1",
+                "focus-outline flex items-center justify-between px-4 py-3 sm:w-auto sm:justify-start",
+                { "active-nav-weak": isBrowseActive() },
+              ]}
+              aria-expanded="false"
+              aria-controls="browse-menu"
+              aria-label="Browse menu"
+            >
+              <span>Browse</span>
+              <svg
+                class="ml-1 size-3 transition-transform hidden sm:inline-block"
+                id="browse-chevron-desktop"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+              <svg
+                class="ml-2 size-4 transition-transform sm:hidden"
+                id="browse-chevron-mobile"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <ul
+              id="browse-menu"
+              class:list={[
+                "browse-dropdown hidden w-full sm:absolute sm:top-full sm:mt-1 sm:w-48 sm:rounded-lg sm:border sm:border-skin-line sm:bg-background sm:shadow-lg sm:backdrop-blur-md",
+              ]}
+            >
+              <li>
+                <a
+                  href="/topics"
+                  class:list={[
+                    "block px-4 py-2 text-center font-medium hover:bg-skin-muted hover:text-accent sm:px-4 sm:py-2 sm:text-left",
+                    { "active-nav": isBrowseChildActive("/topics") },
+                  ]}
+                >
+                  Topics
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/categories"
+                  class:list={[
+                    "block px-4 py-2 text-center font-medium hover:bg-skin-muted hover:text-accent sm:px-4 sm:py-2 sm:text-left",
+                    { "active-nav": isBrowseChildActive("/categories") },
+                  ]}
+                >
+                  Categories
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/tags"
+                  class:list={[
+                    "block px-4 py-2 text-center font-medium hover:bg-skin-muted hover:text-accent sm:px-4 sm:py-2 sm:text-left",
+                    { "active-nav": isBrowseChildActive("/tags") },
+                  ]}
+                >
+                  Tags
+                </a>
+              </li>
+            </ul>
           </li>
 
           <li class="col-span-2">
@@ -246,13 +335,16 @@ const isActive = (path: string) => {
     });
 
     // Close menu when any item inside is clicked (mobile UX).
-    menuItems.querySelectorAll("a, button").forEach((el) => {
-      el.addEventListener("click", () => {
+    // Use event delegation to handle dynamically shown/hidden items like Browse dropdown
+    menuItems.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      // Close menu if clicking on a link (including Browse dropdown items)
+      if (target.tagName === "A") {
         const isOpen = menuBtn.getAttribute("aria-expanded") === "true";
         if (isOpen && !window.matchMedia("(min-width: 640px)").matches) {
           setOpen(false);
         }
-      });
+      }
     });
 
     // Safety: unlock scroll if switching to desktop while menu is open.
@@ -276,5 +368,103 @@ const isActive = (path: string) => {
   // Re-bind after Astro view transitions.
   document.addEventListener("astro:after-swap", () => {
     toggleNav();
+  });
+
+  // Browse dropdown functionality
+  function initBrowseDropdown() {
+    const browseToggle = document.querySelector("#browse-toggle") as HTMLButtonElement | null;
+    const browseMenu = document.querySelector("#browse-menu") as HTMLUListElement | null;
+    const browseChevronDesktop = document.querySelector("#browse-chevron-desktop") as SVGElement | null;
+    const browseChevronMobile = document.querySelector("#browse-chevron-mobile") as SVGElement | null;
+
+    if (!browseToggle || !browseMenu) return;
+
+    const isMobile = () => window.matchMedia("(max-width: 639px)").matches;
+
+    const setOpen = (open: boolean) => {
+      browseToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      browseMenu.classList.toggle("hidden", !open);
+      if (browseChevronDesktop) {
+        browseChevronDesktop.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
+      }
+      if (browseChevronMobile) {
+        browseChevronMobile.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
+      }
+    };
+
+    // Prevent duplicate event bindings after Astro view transitions.
+    if (browseToggle.dataset.bound === "1") return;
+    browseToggle.dataset.bound = "1";
+
+    // Desktop: hover behavior
+    let hoverTimeout: number | null = null;
+    const container = browseToggle.closest(".browse-dropdown-container") as HTMLElement;
+
+    if (container) {
+      container.addEventListener("mouseenter", () => {
+        if (!isMobile()) {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          setOpen(true);
+        }
+      });
+
+      container.addEventListener("mouseleave", () => {
+        if (!isMobile()) {
+          hoverTimeout = window.setTimeout(() => {
+            setOpen(false);
+          }, 150);
+        }
+      });
+    }
+
+    // Click behavior (works for both desktop and mobile)
+    browseToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = browseToggle.getAttribute("aria-expanded") === "true";
+      setOpen(!isOpen);
+    });
+
+    // Close on click outside
+    document.addEventListener("click", (e) => {
+      if (!container?.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && browseToggle.getAttribute("aria-expanded") === "true") {
+        setOpen(false);
+        browseToggle.focus();
+      }
+    });
+
+    // Close dropdown items on mobile after click (accordion collapses)
+    browseMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (isMobile()) {
+          // Close the Browse accordion on mobile
+          setOpen(false);
+        }
+      });
+    });
+
+    // Handle resize (close dropdown if switching to desktop)
+    window.addEventListener("resize", () => {
+      if (!isMobile()) {
+        // Desktop hover will handle opening
+      } else {
+        // Mobile: ensure it's closed on resize
+        setOpen(false);
+      }
+    });
+  }
+
+  initBrowseDropdown();
+
+  // Re-bind after Astro view transitions.
+  document.addEventListener("astro:after-swap", () => {
+    initBrowseDropdown();
   });
 </script>
