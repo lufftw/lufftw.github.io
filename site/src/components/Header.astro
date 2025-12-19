@@ -1,250 +1,274 @@
 ---
-/**
- * Header
- *
- * - Desktop nav + mobile overlay menu
- * - Search link
- * - Theme toggle button (desktop + mobile)
- *
- * Theme logic is NOT implemented here to avoid conflicts.
- * This component only provides:
- * - #theme-btn (desktop)
- * - [data-theme-toggle] (desktop + mobile)
- * Your global theme script should listen to these and toggle `html.dark`
- * while writing localStorage key `theme` = "light" | "dark".
- */
+import Hr from "./Hr.astro";
+import IconX from "@/assets/icons/IconX.svg";
+import IconMoon from "@/assets/icons/IconMoon.svg";
+import IconSearch from "@/assets/icons/IconSearch.svg";
+import IconArchive from "@/assets/icons/IconArchive.svg";
+import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import LinkButton from "./LinkButton.astro";
+import { SITE } from "@/config";
 
-const NAV_LINKS = [
-  { label: "Posts", href: "/posts/" },
-  { label: "Notes", href: "/notes/" },
-  { label: "Topics", href: "/topics/" },
-  { label: "Archives", href: "/archives/" },
-  { label: "About", href: "/about/" },
-];
+const { pathname } = Astro.url;
 
-const SITE_TITLE = "Mingalaba";
+// Remove trailing slash from current pathname if exists
+const currentPath =
+  pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
+
+const isActive = (path: string) => {
+  const currentPathArray = currentPath.split("/").filter((p) => p.trim());
+  const pathArray = path.split("/").filter((p) => p.trim());
+
+  return currentPath === path || currentPathArray[0] === pathArray[0];
+};
 ---
 
-<header
-  class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/70"
-  data-site-header
->
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-    <!-- Brand -->
-    <a
-      href="/"
-      class="text-base font-semibold tracking-tight text-slate-900 hover:opacity-90 dark:text-slate-100"
-      aria-label="Go to homepage"
+<header>
+  <a
+    id="skip-to-content"
+    href="#main-content"
+    class="absolute start-16 -top-full z-50 bg-background px-3 py-2 text-accent backdrop-blur-lg transition-all focus:top-4"
+  >
+    Skip to content
+  </a>
+
+  <div
+    id="nav-container"
+    class="mx-auto flex max-w-app flex-col items-center justify-between sm:flex-row"
+  >
+    <div
+      id="top-nav-wrap"
+      class="relative flex w-full items-baseline justify-between bg-background p-4 sm:items-center sm:py-6"
     >
-      {SITE_TITLE}
-    </a>
-
-    <!-- Desktop nav -->
-    <nav class="hidden items-center gap-6 md:flex" aria-label="Primary navigation">
-      {NAV_LINKS.map((item) => (
-        <a
-          href={item.href}
-          class="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
-        >
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    <!-- Actions -->
-    <div class="flex items-center gap-2">
-      <!-- Search -->
       <a
-        href="/search/"
-        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
-        aria-label="Search"
-        title="Search"
+        href="/"
+        class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none"
       >
-        <span aria-hidden="true">⌕</span>
-        <span class="ml-2 hidden sm:inline">Search</span>
+        {SITE.title}
       </a>
 
-      <!-- Theme toggle (desktop) -->
-      <button
-        id="theme-btn"
-        type="button"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
-        data-theme-toggle
-        aria-label="Toggle theme"
-        title="Toggle theme"
+      <nav
+        id="nav-menu"
+        class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"
       >
-        <!-- Moon: shown in light mode -->
-        <svg
-          class="h-5 w-5 block dark:hidden"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M21 13.2A7.5 7.5 0 0 1 10.8 3 9 9 0 1 0 21 13.2Z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-
-        <!-- Sun: shown in dark mode -->
-        <svg
-          class="h-5 w-5 hidden dark:block"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
-
-      <!-- Mobile menu toggle -->
-      <button
-        class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 md:hidden"
-        data-menu-open
-        aria-label="Open menu"
-        title="Menu"
-        type="button"
-      >
-        ☰
-      </button>
-    </div>
-  </div>
-
-  <!-- Mobile menu overlay -->
-  <div
-    class="pointer-events-none fixed inset-0 z-50 opacity-0 transition-opacity"
-    data-menu-overlay
-  >
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/40" data-menu-backdrop></div>
-
-    <!-- Panel -->
-    <div
-      class="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] translate-x-full bg-white shadow-xl transition-transform dark:bg-slate-950"
-      data-menu-panel
-      role="dialog"
-      aria-modal="true"
-      aria-label="Mobile menu"
-    >
-      <div class="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-slate-800">
-        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-          {SITE_TITLE}
-        </div>
-
         <button
-          class="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
-          data-menu-close
-          aria-label="Close menu"
-          title="Close"
-          type="button"
+          id="menu-btn"
+          class="focus-outline self-end p-2 sm:hidden"
+          aria-label="Open Menu"
+          aria-expanded="false"
+          aria-controls="menu-items"
         >
-          ✕
+          <IconX id="close-icon" class="hidden" />
+          <IconMenuDeep id="menu-icon" />
         </button>
-      </div>
 
-      <div class="px-4 py-4">
-        <!-- Mobile actions -->
-        <div class="mb-4 grid gap-2">
-          <a
-            href="/search/"
-            class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
-            data-menu-link
-          >
-            ⌕ Search
-          </a>
-
-          <!-- Theme toggle (mobile) -->
-          <button
-            type="button"
-            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
-            data-theme-toggle
-          >
-            Toggle theme
-          </button>
-        </div>
-
-        <nav class="flex flex-col gap-2" aria-label="Mobile navigation">
-          {NAV_LINKS.map((item) => (
-            <a
-              href={item.href}
-              class="rounded-xl px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
-              data-menu-link
-            >
-              {item.label}
+        <ul
+          id="menu-items"
+          class:list={[
+            "mt-4 grid w-44 grid-cols-2 place-content-center gap-2",
+            "[&>li>a]:block [&>li>a]:px-4 [&>li>a]:py-3 [&>li>a]:text-center [&>li>a]:font-medium [&>li>a]:hover:text-accent sm:[&>li>a]:px-2 sm:[&>li>a]:py-1",
+            "hidden",
+            "sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0",
+          ]}
+        >
+          <li class="col-span-2">
+            <a href="/posts" class:list={{ "active-nav": isActive("/posts") }}>
+              Posts
             </a>
-          ))}
-        </nav>
+          </li>
 
-        <div class="mt-6 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-500">
-          Navigation and theme controls.
-        </div>
-      </div>
+          <!-- Notes / Topics: Keep the original structure, only change the routes and text -->
+          <li class="col-span-2">
+            <a href="/notes" class:list={{ "active-nav": isActive("/notes") }}>
+              Notes
+            </a>
+          </li>
+          <li class="col-span-2">
+            <a href="/topics" class:list={{ "active-nav": isActive("/topics") }}>
+              Topics
+            </a>
+          </li>
+
+          <li class="col-span-2">
+            <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
+              About
+            </a>
+          </li>
+
+          {
+            SITE.showArchives && (
+              <li class="col-span-2">
+                <LinkButton
+                  href="/archives"
+                  class:list={[
+                    "focus-outline flex justify-center p-3 sm:p-1",
+                    {
+                      "active-nav [&>svg]:stroke-accent": isActive("/archives"),
+                    },
+                  ]}
+                  ariaLabel="archives"
+                  title="Archives"
+                >
+                  <IconArchive class="hidden sm:inline-block" />
+                  <span class="sm:sr-only">Archives</span>
+                </LinkButton>
+              </li>
+            )
+          }
+
+          <li class="col-span-1 flex items-center justify-center">
+            <LinkButton
+              href="/search"
+              class:list={[
+                "focus-outline flex p-3 sm:p-1",
+                { "[&>svg]:stroke-accent": isActive("/search") },
+              ]}
+              ariaLabel="search"
+              title="Search"
+            >
+              <IconSearch />
+              <span class="sr-only">Search</span>
+            </LinkButton>
+          </li>
+
+          {
+            SITE.lightAndDarkMode && (
+              <li class="col-span-1 flex items-center justify-center">
+                <button
+                  id="theme-btn"
+                  class="focus-outline relative size-12 p-4 sm:size-8 hover:[&>svg]:stroke-accent"
+                  title="Toggles light & dark"
+                  aria-label="auto"
+                  aria-live="polite"
+                >
+                  <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                  <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                </button>
+              </li>
+            )
+          }
+        </ul>
+      </nav>
     </div>
   </div>
 
-  <script is:inline>
-    (() => {
-      const header = document.querySelector("[data-site-header]");
-      if (!header) return;
-
-      const overlay = header.querySelector("[data-menu-overlay]");
-      const panel = header.querySelector("[data-menu-panel]");
-      const openBtn = header.querySelector("[data-menu-open]");
-      const closeBtn = header.querySelector("[data-menu-close]");
-      const backdrop = header.querySelector("[data-menu-backdrop]");
-      const menuLinks = Array.from(header.querySelectorAll("[data-menu-link]"));
-
-      const openMenu = () => {
-        if (!overlay || !panel) return;
-        overlay.classList.remove("pointer-events-none", "opacity-0");
-        overlay.classList.add("opacity-100");
-        panel.classList.remove("translate-x-full");
-        document.documentElement.style.overflow = "hidden";
-      };
-
-      const closeMenu = () => {
-        if (!overlay || !panel) return;
-        overlay.classList.add("pointer-events-none", "opacity-0");
-        overlay.classList.remove("opacity-100");
-        panel.classList.add("translate-x-full");
-        document.documentElement.style.overflow = "";
-      };
-
-      openBtn?.addEventListener("click", openMenu);
-      closeBtn?.addEventListener("click", closeMenu);
-      backdrop?.addEventListener("click", closeMenu);
-      menuLinks.forEach((a) => a.addEventListener("click", closeMenu));
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeMenu();
-      });
-
-      // If a page transition happens while menu is open, restore scrolling
-      document.addEventListener(
-        "astro:before-swap",
-        () => {
-          document.documentElement.style.overflow = "";
-        },
-        { once: true }
-      );
-    })();
-  </script>
+  <Hr />
 </header>
+
+<script>
+  function toggleNav() {
+    const menuBtn = document.querySelector("#menu-btn");
+    const menuItems = document.querySelector("#menu-items");
+    const menuIcon = document.querySelector("#menu-icon");
+    const closeIcon = document.querySelector("#close-icon");
+
+    if (!menuBtn || !menuItems || !menuIcon || !closeIcon) return;
+
+    // --- Minimal, stable scroll lock (mobile-safe, no CSS pollution) ---
+    let savedScrollY = 0;
+
+    const lockScroll = () => {
+      // Only lock on small screens (same breakpoint intent as sm:hidden)
+      if (window.matchMedia("(min-width: 640px)").matches) return;
+
+      savedScrollY = window.scrollY || 0;
+
+      // Prevent layout shift on platforms with scrollbars
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      if (scrollbarWidth > 0) {
+        document.body.dataset.prevPaddingRight = document.body.style.paddingRight || "";
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+
+      document.body.dataset.scrollY = String(savedScrollY);
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    };
+
+    const unlockScroll = () => {
+      const y = Number(document.body.dataset.scrollY || "0");
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+
+      // Restore padding compensation if any
+      if ("prevPaddingRight" in document.body.dataset) {
+        document.body.style.paddingRight = document.body.dataset.prevPaddingRight || "";
+        delete document.body.dataset.prevPaddingRight;
+      } else {
+        document.body.style.paddingRight = "";
+      }
+
+      delete document.body.dataset.scrollY;
+
+      // Restore scroll position
+      window.scrollTo(0, y);
+    };
+    // ---------------------------------------------------------------
+
+    const setOpen = (open) => {
+      menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      menuBtn.setAttribute("aria-label", open ? "Close Menu" : "Open Menu");
+
+      // Keep original visual behavior
+      menuItems.classList.toggle("hidden", !open);
+      menuIcon.classList.toggle("hidden", open);
+      closeIcon.classList.toggle("hidden", !open);
+
+      // Lock/unlock background scroll for mobile to prevent "page jump"
+      if (open) lockScroll();
+      else unlockScroll();
+    };
+
+    // Avoid duplicate listeners when astro:after-swap calls toggleNav again
+    if (menuBtn.dataset.bound === "1") return;
+    menuBtn.dataset.bound = "1";
+
+    menuBtn.addEventListener("click", () => {
+      const openMenu = menuBtn.getAttribute("aria-expanded") === "true";
+      setOpen(!openMenu);
+    });
+
+    // Close menu when clicking any link inside (mobile UX)
+    menuItems.querySelectorAll("a, button").forEach((el) => {
+      el.addEventListener("click", () => {
+        // Only close if menu is actually open and on mobile
+        const isOpen = menuBtn.getAttribute("aria-expanded") === "true";
+        if (isOpen && !window.matchMedia("(min-width: 640px)").matches) {
+          setOpen(false);
+        }
+      });
+    });
+
+    // Safety: if viewport becomes desktop while menu was open, unlock scroll
+    window.addEventListener("resize", () => {
+      const isDesktop = window.matchMedia("(min-width: 640px)").matches;
+      const isOpen = menuBtn.getAttribute("aria-expanded") === "true";
+      if (isDesktop && isOpen) {
+        // On desktop, menu items are shown via CSS, but we keep aria coherent
+        unlockScroll();
+      }
+    });
+
+    // Restore scrolling if a page transition happens while menu is open
+    document.addEventListener("astro:before-swap", () => {
+      unlockScroll();
+    });
+  }
+
+  toggleNav();
+
+  // Runs on view transitions navigation
+  document.addEventListener("astro:after-swap", () => {
+    // Re-bind after swap: allow it to attach to the new DOM
+    // but keep the bound-guard to avoid duplicates.
+    toggleNav();
+  });
+</script>
