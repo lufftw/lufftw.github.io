@@ -233,8 +233,9 @@ const isActive = (path: string) => {
     };
 
     // Avoid duplicate listeners when astro:after-swap calls toggleNav again
-    if (menuBtn.dataset.bound === "1") return;
-    menuBtn.dataset.bound = "1";
+    const menuBtnElement = menuBtn as HTMLElement;
+    if (menuBtnElement.dataset.bound === "1") return;
+    menuBtnElement.dataset.bound = "1";
 
     menuBtn.addEventListener("click", () => {
       const openMenu = menuBtn.getAttribute("aria-expanded") === "true";
