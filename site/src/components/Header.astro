@@ -95,56 +95,45 @@ const isBrowseChildActive = (path: string) => {
           <!-- Browse Dropdown (Desktop: dropdown, Mobile: accordion) -->
           <li class="col-span-2 browse-dropdown-container relative">
             <button
-            id="browse-toggle"
-            class:list={[
-              // mobile
-              "w-full font-medium px-4 py-3 flex items-center justify-center gap-2 text-center",
-          
-              // desktop (sm:)
-              "sm:w-auto sm:px-2 sm:py-1 sm:justify-start sm:text-left",
-          
-              "hover:text-accent focus-outline",
-              { "active-nav-weak": isBrowseActive() },
-            ]}
-            aria-expanded="false"
-            aria-controls="browse-menu"
-            aria-label="Browse menu"
-          >
-            <span>Browse</span>
-          
-            {/* Desktop chevron */}
-            <svg
-              id="browse-chevron-desktop"
-              class="hidden sm:block size-3 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+              id="browse-toggle"
+              class:list={[
+                "w-full text-left font-medium hover:text-accent sm:px-2 sm:py-1",
+                "focus-outline flex items-center justify-between px-4 py-3 sm:w-auto sm:justify-start",
+                { "active-nav-weak": isBrowseActive() },
+              ]}
+              aria-expanded="false"
+              aria-controls="browse-menu"
+              aria-label="Browse menu"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          
-            {/* Mobile chevron */}
-            <svg
-              id="browse-chevron-mobile"
-              class="block sm:hidden size-4 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+              <span>Browse</span>
+              <svg
+                class="ml-1 size-3 transition-transform hidden sm:inline-block"
+                id="browse-chevron-desktop"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+              <svg
+                class="ml-2 size-4 transition-transform sm:hidden"
+                id="browse-chevron-mobile"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </button>
             <ul
               id="browse-menu"
