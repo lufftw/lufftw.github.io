@@ -97,8 +97,8 @@ const isBrowseChildActive = (path: string) => {
             <button
               id="browse-toggle"
               class:list={[
-                "w-full text-left font-medium hover:text-accent sm:px-2 sm:py-1",
-                "focus-outline flex items-center justify-between px-4 py-3 sm:w-auto sm:justify-start",
+                "w-full font-medium hover:text-accent sm:px-2 sm:py-1",
+                "focus-outline relative flex items-center justify-center px-4 py-3 text-center sm:w-auto sm:justify-start sm:text-left",
                 { "active-nav-weak": isBrowseActive() },
               ]}
               aria-expanded="false"
@@ -121,7 +121,7 @@ const isBrowseChildActive = (path: string) => {
                 />
               </svg>
               <svg
-                class="ml-2 size-4 transition-transform sm:hidden"
+                class="absolute right-4 size-4 transition-transform sm:hidden"
                 id="browse-chevron-mobile"
                 fill="none"
                 stroke="currentColor"
