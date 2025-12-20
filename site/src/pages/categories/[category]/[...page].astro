@@ -1,0 +1,107 @@
+---
+/**
+ * /categories/[category]/[...page]
+ *
+ * Category detail listing page with pagination (Logbook-style).
+ *
+ * Features:
+ * - Includes BOTH posts and notes in the same collection:
+ *   data.type === "post" || data.type === "note"
+ * - Uses getUniqueCategories() to generate category routes and display name
+ * - Uses getPostsByCategory() to filter entries by category slug, and keep sorting consistent
+ * - Renders entries using PostCardHorizontal
+ * - Adds a small POST/NOTE badge per item (without modifying PostCardHorizontal)
+ *
+ * Notes:
+ * - Keeps your existing Layout/Main/Pagination structure
+ * - Avoids refactoring Card.astro to minimize collateral changes
+ */
+
+import { getCollection } from "astro:content";
+import type { GetStaticPathsOptions } from "astro";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Pagination from "@/components/Pagination.astro";
+import Hr from "@/components/Hr.astro";
+import getUniqueCategories from "@/utils/getUniqueCategories";
+import getPostsByCategory from "@/utils/getPostsByCategory";
+import PostCardHorizontal from "@/components/PostCardHorizontal.astro";
+import { SITE } from "@/config";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const all = await getCollection("blog");
+
+  // Include both posts and notes for category routing and pagination
+  const entries = all.filter(
+    ({ data }) => data.type === "post" || data.type === "note"
+  );
+
+  const categories = getUniqueCategories(entries);
+
+  return categories.flatMap(({ category, categoryName }) => {
+    const categoryEntries = getPostsByCategory(entries, category);
+
+    return paginate(categoryEntries, {
+      params: { category },
+      props: { categoryName },
+      pageSize: SITE.postPerPage,
+    });
+  });
+}
+
+import type { CollectionEntry } from "astro:content";
+
+const { category } = Astro.params;
+const { page, categoryName } = Astro.props;
+
+// Badge label helper
+const labelOf = (entry: CollectionEntry<"blog">) => (entry.data?.type === "note" ? "NOTE" : "POST");
+---
+
+<Layout title={`Category: ${categoryName} | ${SITE.title}`}>
+  <Header />
+
+  <Main
+    pageTitle={["Category:", `${categoryName}`]}
+    titleTransition={category}
+    pageDesc={`All entries tagged with "${categoryName}".`}
+  >
+    <!-- Optional: preserve your existing title slot behavior -->
+    <h1 slot="title" transition:name={category}>{`Category:${category}`}</h1>
+
+    <Hr />
+
+    {page.data.length === 0 ? (
+      <p class="mt-6 text-sm text-slate-500">No entries found for this category.</p>
+    ) : (
+      <ul class="mt-6 space-y-6">
+        {page.data.map((entry) => (
+          <li class="rounded-2xl border border-slate-200 p-4">
+            <!-- Type badge row -->
+            <div class="mb-3 flex items-center gap-2">
+              <span class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600">
+                {labelOf(entry)}
+              </span>
+
+              {entry.data?.featured && (
+                <span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-600">
+                  FEATURED
+                </span>
+              )}
+            </div>
+
+            <!-- Logbook-style horizontal card -->
+            <PostCardHorizontal {...entry} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </Main>
+
+  <Pagination page={page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>
+

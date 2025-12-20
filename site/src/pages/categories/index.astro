@@ -1,0 +1,33 @@
+---
+/**
+ * /categories
+ *
+ * Category index page.
+ * Uses getUniqueCategories() which aggregates categories across BOTH posts and notes.
+ */
+
+import { getCollection } from "astro:content";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Category from "@/components/Category.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import getUniqueCategories from "@/utils/getUniqueCategories";
+import { SITE } from "@/config";
+
+const entries = await getCollection("blog");
+const categories = getUniqueCategories(entries);
+---
+
+<Layout title={`Categories | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Categories" pageDesc="All the categories used in posts.">
+    <ul>
+      {categories.map(({ category, categoryName }) => (
+        <Category category={category} categoryName={categoryName} size="lg" />
+      ))}
+    </ul>
+  </Main>
+  <Footer />
+</Layout>
+
