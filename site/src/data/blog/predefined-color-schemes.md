@@ -7,6 +7,12 @@ type: "note"
 slug: predefined-color-schemes
 featured: false
 draft: false
+topics:
+  - topic 2
+  - topic 3
+categories:
+  - category 2
+  - category 3
 tags:
   - color-schemes
 description:

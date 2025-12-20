@@ -43,8 +43,8 @@ export const GET: APIRoute = async () => {
         // Optional metadata
         datetime: entry.data?.pubDatetime?.toISOString() ?? "",
         tags: Array.isArray(entry.data?.tags) ? entry.data.tags : [],
-        categories: Array.isArray(entry.data?.topics)
-          ? entry.data.topics
+        categories: Array.isArray(entry.data?.categories)
+          ? entry.data.categories
           : [],
         featured: Boolean(entry.data?.featured),
       };
