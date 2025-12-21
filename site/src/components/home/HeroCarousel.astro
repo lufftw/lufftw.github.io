@@ -8,6 +8,7 @@
  * - Large italic title, inline meta
  */
 
+import { Picture } from "astro:assets";
 import { getPathFromEntry } from "@/utils/getPath";
 
 const { items } = Astro.props;
@@ -16,6 +17,10 @@ function coverOf(entry: any) {
   const ogImage = entry.data?.ogImage;
   if (!ogImage) return undefined;
   return typeof ogImage === "string" ? ogImage : ogImage?.src;
+}
+
+function isImportedImage(image: any): boolean {
+  return image && typeof image !== "string" && image.src && typeof image.src !== "string";
 }
 
 function asArray(v: unknown): string[] {
@@ -63,13 +68,24 @@ function tagsOf(entry: any): string[] {
           <article class="carousel-slide" data-slide data-index={idx}>
             <a href={getPathFromEntry(entry)} class="slide-link">
               {/* Background image - displays fully */}
-              {coverOf(entry) ? (
-                <img
-                  src={coverOf(entry)}
-                  alt={entry.data?.title ?? entry.slug}
-                  class="slide-img"
-                  loading={idx === 0 ? "eager" : "lazy"}
-                />
+              {entry.data?.ogImage ? (
+                isImportedImage(entry.data.ogImage) ? (
+                  <Picture
+                    src={entry.data.ogImage}
+                    alt={entry.data?.title ?? entry.slug}
+                    class="slide-img"
+                    sizes="100vw"
+                    widths={[360, 480, 640, 768, 1024, 1280, 1536, 1920]}
+                    priority={idx === 0}
+                  />
+                ) : (
+                  <img
+                    src={coverOf(entry)}
+                    alt={entry.data?.title ?? entry.slug}
+                    class="slide-img"
+                    loading={idx === 0 ? "eager" : "lazy"}
+                  />
+                )
               ) : (
                 <div class="carousel-placeholder" />
               )}
@@ -188,8 +204,22 @@ function tagsOf(entry: any): string[] {
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
     object-position: center;
+  }
+
+  /* Mobile + Tablet: no cropping */
+  @media (max-width: 1024px) {
+    .slide-img {
+      object-fit: contain;
+      background: #111; /* 或你主視覺的底色 */
+    }
+  }
+
+  /* Desktop: Hero visual, full-screen */
+  @media (min-width: 1025px) {
+    .slide-img {
+      object-fit: cover;
+    }
   }
 
   .carousel-placeholder {
