@@ -20,7 +20,16 @@ ogImage: ../../assets/images/og/sliding-window.png
 
 ---
 
-![Sliding Window Pattern](../../assets/images/og/sliding-window.png)
+<!-- ![Sliding Window Pattern](../../assets/images/og/sliding-window.png) -->
+<figure>
+  <img
+    src="../../assets/images/og/sliding-window.png"
+    alt=""
+  />
+    <figcaption class="text-center">
+    Photo by <a href="https://chatgpt.com/">OpenAI</a>
+  </figcaption>
+</figure>
 
 ## The Situation That Calls for a Window
 
