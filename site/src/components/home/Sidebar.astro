@@ -25,6 +25,12 @@ const featured = entries.filter((e: CollectionEntry<"blog">) => e.data?.featured
 
 // Latest items (assumes entries are already sorted newest-first by the page)
 const latest = entries.slice(0, 5);
+// Debug: check latest array
+// console.log("Sidebar latest array:", latest.map(e => ({
+//   title: e.data?.title,
+//   featured: e.data?.featured,
+//   modDatetime: e.data?.modDatetime
+// })));
 
 // Aggregate category counts from frontmatter (using topics instead of categories)
 const categories = new Map<string, number>();
