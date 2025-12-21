@@ -11,6 +11,7 @@ tags:
 description:
   Some rules & recommendations for creating or adding new posts using AstroPaperr
   theme.
+ogImage: "https://images.pexels.com/photos/159618/still-life-school-retro-ink-159618.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
 ---
 
 Here are some rules/recommendations, tips & ticks for creating new posts in AstroPaper blog theme.
