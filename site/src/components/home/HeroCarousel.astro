@@ -48,6 +48,9 @@ function formatDate(entry: any): string | undefined {
   return `${day} ${month}, ${year}`;
 }
 
+function topicsOf(entry: any): string[] {
+  return asArray(entry.data?.topics);
+}
 function categoriesOf(entry: any): string[] {
   return asArray(entry.data?.categories);
 }
@@ -62,6 +65,7 @@ function tagsOf(entry: any): string[] {
       {items.map((entry: any, idx: number) => {
         const author = authorOf(entry);
         const date = formatDate(entry);
+        const topics = topicsOf(entry);
         const categories = categoriesOf(entry);
         const tags = tagsOf(entry);
 
@@ -107,6 +111,23 @@ function tagsOf(entry: any): string[] {
                     <span class="meta-item">
                       <span class="meta-label">Date :</span>
                       <span>{date}</span>
+                    </span>
+                  )}
+
+                  {topics.length > 0 && (
+                    <span class="meta-item">
+                      <span class="meta-label">Topics :</span>
+                      <span class="meta-links">
+                        {topics.map((topic, idx) => [
+                          idx > 0 && " , ",
+                          <a
+                            href={`/topics/${slugifyStr(topic)}/`}
+                            class="meta-link"
+                          >
+                            {topic}
+                          </a>
+                        ])}
+                      </span>
                     </span>
                   )}
 
@@ -271,7 +292,7 @@ function tagsOf(entry: any): string[] {
     color: #fff;
   }
 
-  /* Meta: inline row */
+  /* Meta: inline row with centered alignment */
   .caption-meta {
     margin-top: 0.6rem;
     display: flex;
@@ -282,11 +303,35 @@ function tagsOf(entry: any): string[] {
     font-size: 0.88rem;
     color: rgba(255, 255, 255, 0.85);
   }
+  
+  /* Trick to make wrapped lines align naturally while keeping first line centered */
+  .caption-meta::after {
+    content: '';
+    flex-basis: 100%;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
 
   .meta-item {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  /* Ensure meta-links wrap naturally within meta-item */
+  .meta-item .meta-links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+  }
+  
+  /* Allow meta-links to break if needed, but keep items together */
+  .meta-item .meta-links a {
+    white-space: nowrap;
   }
 
   .meta-icon {
