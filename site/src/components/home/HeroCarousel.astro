@@ -10,6 +10,7 @@
 
 import { Picture } from "astro:assets";
 import { getPathFromEntry } from "@/utils/getPath";
+import { slugifyStr } from "@/utils/slugify";
 
 const { items } = Astro.props;
 
@@ -112,14 +113,34 @@ function tagsOf(entry: any): string[] {
                   {categories.length > 0 && (
                     <span class="meta-item">
                       <span class="meta-label">Categories :</span>
-                      <span class="meta-links">{categories.join(" , ")}</span>
+                      <span class="meta-links">
+                        {categories.map((cat, idx) => [
+                          idx > 0 && " , ",
+                          <a
+                            href={`/categories/${slugifyStr(cat)}/`}
+                            class="meta-link"
+                          >
+                            {cat}
+                          </a>
+                        ])}
+                      </span>
                     </span>
                   )}
 
                   {tags.length > 0 && (
                     <span class="meta-item">
                       <span class="meta-label">Tags :</span>
-                      <span class="meta-links">{tags.join(" , ")}</span>
+                      <span class="meta-links">
+                        {tags.map((tag, idx) => [
+                          idx > 0 && " , ",
+                          <a
+                            href={`/tags/${slugifyStr(tag)}/`}
+                            class="meta-link"
+                          >
+                            {tag}
+                          </a>
+                        ])}
+                      </span>
                     </span>
                   )}
                 </div>
@@ -280,6 +301,16 @@ function tagsOf(entry: any): string[] {
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .meta-link {
+    color: inherit;
+    text-decoration: inherit;
+    transition: opacity 0.2s ease;
+  }
+  .meta-link:hover {
+    opacity: 0.8;
+    text-decoration-color: rgba(255, 255, 255, 0.7);
   }
 
   /* Navigation buttons */
