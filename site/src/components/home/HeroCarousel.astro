@@ -21,7 +21,10 @@ const { items } = Astro.props;
 
 // Resolve hero image source from frontmatter
 function coverOf(entry: any) {
-  return entry.data?.heroImage || entry.data?.coverImage || entry.data?.image;
+  const ogImage = entry.data?.ogImage;
+  if (!ogImage) return undefined;
+  // Handle both string URLs and image objects
+  return typeof ogImage === "string" ? ogImage : ogImage?.src;
 }
 ---
 
