@@ -4,20 +4,23 @@ type: post
 pubDatetime: 2025-12-21T12:00:00Z
 modDatetime: 2025-12-21T12:03:00Z
 title: "Understanding the Sliding Window Pattern: An Intuition Guide for LeetCode"
-featured: false
+featured: true
 draft: false
 categories:
   - Algorithm
 tags:
   - LeetCode
-  - Sliding Window
+  - Sliding window
 description: An intuition guide to the sliding window pattern for LeetCode problems
+ogImage: ../../assets/images/og/sliding-window.png
 ---
 
 
 > *"The window is a moving lens of attention — it forgets the past to focus on what matters now."*
 
 ---
+
+![Sliding Window Pattern](../../assets/images/og/sliding-window.png)
 
 ## The Situation That Calls for a Window
 

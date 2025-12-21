@@ -1,313 +1,343 @@
 ---
 /**
- * HeroCarousel
+ * HeroCarousel - Clean Caption Bar Style
  *
- * Featured-only hero carousel using horizontal scroll-snap.
- *
- * Features:
- * - Prev / Next buttons
- * - Dots indicator
- * - Slide counter (e.g. 1 / 5)
- * - Autoplay with pause-on-hover/focus and prefers-reduced-motion support
- *
- * Notes:
- * - Use scroller.scrollTo({ left }) instead of scrollIntoView()
- *   to avoid scrolling the whole page.
+ * Works for both artistic images AND content-rich images (diagrams, etc.)
+ * - Image displays fully without text overlay interference
+ * - Clean caption bar at bottom with solid background
+ * - Large italic title, inline meta
  */
 
 import { getPathFromEntry } from "@/utils/getPath";
 
 const { items } = Astro.props;
 
-// Resolve hero image source from frontmatter
 function coverOf(entry: any) {
   const ogImage = entry.data?.ogImage;
   if (!ogImage) return undefined;
-  // Handle both string URLs and image objects
   return typeof ogImage === "string" ? ogImage : ogImage?.src;
+}
+
+function asArray(v: unknown): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(Boolean).map(String);
+  return [String(v)];
+}
+
+function authorOf(entry: any): string | undefined {
+  const a = entry.data?.author;
+  if (typeof a === "string" && a.trim()) return a.trim();
+  const authors = asArray(entry.data?.authors);
+  return authors.length ? authors[0] : undefined;
+}
+
+function formatDate(entry: any): string | undefined {
+  const d = entry.data?.datetime || entry.data?.pubDatetime;
+  if (!d) return undefined;
+  const date = new Date(d);
+  const day = date.getDate();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} ${month}, ${year}`;
+}
+
+function categoriesOf(entry: any): string[] {
+  return asArray(entry.data?.categories);
+}
+function tagsOf(entry: any): string[] {
+  return asArray(entry.data?.tags);
 }
 ---
 
-<section class="mt-4" data-hero-root>
+<section class="hero-section" data-hero-root>
   <div class="carousel-container">
-    <!-- Scrollable carousel container -->
-    <div
-      class="carousel-scroller"
-      data-carousel
-      aria-label="Featured posts carousel"
-    >
-      {items.map((entry: any, idx: number) => (
-        <article
-          class="carousel-slide"
-          data-slide
-          data-index={idx}
-        >
-          <a href={getPathFromEntry(entry)} class="block h-full w-full">
-            {coverOf(entry) ? (
-              idx === 0 ? (
+    <div class="carousel-scroller" data-carousel aria-label="Featured posts carousel">
+      {items.map((entry: any, idx: number) => {
+        const author = authorOf(entry);
+        const date = formatDate(entry);
+        const categories = categoriesOf(entry);
+        const tags = tagsOf(entry);
+
+        return (
+          <article class="carousel-slide" data-slide data-index={idx}>
+            <a href={getPathFromEntry(entry)} class="slide-link">
+              {/* Background image - displays fully */}
+              {coverOf(entry) ? (
                 <img
                   src={coverOf(entry)}
                   alt={entry.data?.title ?? entry.slug}
-                  class="h-full w-full object-cover"
-                  loading="eager"
+                  class="slide-img"
+                  loading={idx === 0 ? "eager" : "lazy"}
                 />
               ) : (
-                <img
-                  src={coverOf(entry)}
-                  alt={entry.data?.title ?? entry.slug}
-                  class="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              )
-            ) : (
-              <div class="carousel-placeholder" />
-            )}
-
-            <!-- Gradient overlay -->
-            <div class="carousel-gradient" />
-
-            <!-- Text overlay -->
-            <div class="carousel-text">
-              <h2 class="carousel-title">
-                {entry.data?.title ?? entry.slug}
-              </h2>
-
-              {entry.data?.datetime && (
-                <div class="carousel-date">
-                  {entry.data.datetime}
-                </div>
+                <div class="carousel-placeholder" />
               )}
-            </div>
-          </a>
-        </article>
-      ))}
+
+              {/* Caption bar at bottom */}
+              <div class="caption-bar">
+                <h2 class="caption-title">{entry.data?.title ?? entry.slug}</h2>
+
+                <div class="caption-meta">
+                  {author && (
+                    <span class="meta-item">
+                      <span class="meta-icon">👤</span>
+                      <span>{author}</span>
+                    </span>
+                  )}
+
+                  {date && (
+                    <span class="meta-item">
+                      <span class="meta-label">Date :</span>
+                      <span>{date}</span>
+                    </span>
+                  )}
+
+                  {categories.length > 0 && (
+                    <span class="meta-item">
+                      <span class="meta-label">Categories :</span>
+                      <span class="meta-links">{categories.join(" , ")}</span>
+                    </span>
+                  )}
+
+                  {tags.length > 0 && (
+                    <span class="meta-item">
+                      <span class="meta-label">Tags :</span>
+                      <span class="meta-links">{tags.join(" , ")}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </a>
+          </article>
+        );
+      })}
     </div>
 
-    <!-- Prev / Next controls -->
-    <button
-      class="carousel-btn carousel-btn-prev"
-      data-prev
-      aria-label="Previous slide"
-      type="button"
-    >
-      ‹
+    {/* Navigation arrows */}
+    <button class="nav-btn nav-prev" data-prev aria-label="Previous slide" type="button">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 1L1 9L9 17" />
+      </svg>
+    </button>
+    <button class="nav-btn nav-next" data-next aria-label="Next slide" type="button">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 1L9 9L1 17" />
+      </svg>
     </button>
 
-    <button
-      class="carousel-btn carousel-btn-next"
-      data-next
-      aria-label="Next slide"
-      type="button"
-    >
-      ›
-    </button>
-
-    <!-- Bottom bar: dots + counter -->
-    <div class="carousel-controls">
-      <!-- Dots -->
-      <div class="carousel-dots" data-dots aria-label="Slide indicators">
-        {items.map((_: any, idx: number) => (
-          <button
-            class="carousel-dot"
-            data-dot
-            data-dot-index={idx}
-            aria-label={`Go to slide ${idx + 1}`}
-            type="button"
-          />
-        ))}
-      </div>
-
-      <!-- Counter -->
-      <div class="carousel-counter" data-counter>
-        <span data-current>1</span> / <span data-total>{items.length}</span>
-      </div>
+    {/* Dots indicator */}
+    <div class="dots-container">
+      {items.map((_: any, idx: number) => (
+        <button
+          class="dot"
+          data-dot
+          data-dot-index={idx}
+          aria-label={`Go to slide ${idx + 1}`}
+          type="button"
+        />
+      ))}
     </div>
   </div>
 </section>
 
 <style>
-  /* Container */
-  /* Following AstroPaper standard: use CSS variables for theme-aware colors */
+  .hero-section {
+    margin-top: 1rem;
+  }
+
   .carousel-container {
     position: relative;
     overflow: hidden;
-    border-radius: 1rem;
-    border: 1px solid var(--border);
-    overflow-anchor: none;
+    border-radius: 0.75rem;
+    background: #1a1a1a;
   }
 
-  /* Scroller */
   .carousel-scroller {
     display: flex;
     scroll-snap-type: x mandatory;
     overflow-x: auto;
-    scroll-behavior: smooth;
     scrollbar-width: none;
-    overflow-anchor: none;
+    scroll-behavior: smooth;
   }
   .carousel-scroller::-webkit-scrollbar {
     display: none;
   }
 
-  /* Slide */
   .carousel-slide {
     position: relative;
-    height: 320px;
     width: 100%;
     flex: none;
     scroll-snap-align: start;
-  }
-  @media (min-width: 768px) {
-    .carousel-slide {
-      height: 420px;
-    }
+    aspect-ratio: 16 / 9;
+    min-height: 380px;
+    max-height: 580px;
   }
 
-  /* Placeholder */
-  /* Use muted color variable for consistent theming */
-  .carousel-placeholder {
-    height: 100%;
+  .slide-link {
+    display: block;
     width: 100%;
-    background-color: var(--muted);
+    height: 100%;
+    position: relative;
+    text-decoration: none;
   }
 
-  /* Gradient overlay */
-  .carousel-gradient {
+  /* Image: full display, no cropping */
+  .slide-img {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.7),
-      rgba(0, 0, 0, 0.2) 50%,
-      transparent
-    );
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
-  /* Text overlay */
-  .carousel-text {
+  .carousel-placeholder {
     position: absolute;
-    bottom: 0;
+    inset: 0;
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  }
+
+  /* Caption bar - solid background at bottom */
+  .caption-bar {
+    position: absolute;
     left: 0;
     right: 0;
-    padding: 1.5rem;
-    color: white;
+    bottom: 0;
+    padding: 1.25rem 1.75rem;
+    padding-bottom: 3.5rem; /* space for dots */
+    background: rgba(30, 30, 30, 0.92);
+    text-align: center;
   }
 
-  .carousel-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.375;
-  }
-  @media (min-width: 768px) {
-    .carousel-title {
-      font-size: 1.875rem;
-    }
+  /* Title: large, elegant italic */
+  .caption-title {
+    margin: 0;
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.25;
+    color: #fff;
   }
 
-  .carousel-date {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
+  /* Meta: inline row */
+  .caption-meta {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .meta-icon {
     opacity: 0.9;
   }
 
+  .meta-label {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .meta-links {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+  }
+
   /* Navigation buttons */
-  /* Use background and foreground variables for theme consistency */
-  .carousel-btn {
+  .nav-btn {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 2rem); /* offset for caption bar */
     transform: translateY(-50%);
-    border-radius: 9999px;
-    background-color: rgba(255, 255, 255, 0.9);
-    color: var(--foreground);
-    padding: 0.5rem 0.75rem;
-    font-size: 1.5rem;
-    line-height: 1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s;
-    backdrop-filter: blur(4px);
-  }
-  .carousel-btn:hover {
-    background-color: rgb(255, 255, 255);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  /* Dark mode: use background variable with opacity for consistency */
-  html[data-theme="dark"] .carousel-btn {
-    background-color: color-mix(in srgb, var(--background) 80%, transparent);
-    color: var(--foreground);
-  }
-  html[data-theme="dark"] .carousel-btn:hover {
-    background-color: color-mix(in srgb, var(--background) 95%, transparent);
-  }
-
-  .carousel-btn-prev {
-    left: 0.75rem;
-  }
-  .carousel-btn-next {
-    right: 0.75rem;
-  }
-
-  /* Controls container */
-  .carousel-controls {
-    position: absolute;
-    bottom: 0.75rem;
-    left: 0;
-    right: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+  }
+  .nav-prev {
+    left: 0.75rem;
+  }
+  .nav-next {
+    right: 0.75rem;
   }
 
   /* Dots */
-  .carousel-dots {
+  .dots-container {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    align-items: center;
     gap: 0.5rem;
   }
 
-  .carousel-dot {
-    height: 0.5rem;
-    width: 0.5rem;
-    border-radius: 9999px;
-    background-color: rgba(255, 255, 255, 0.6);
-    transition: all 0.2s;
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
-  .carousel-dot:hover {
-    background-color: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
+  .dot:hover {
+    background: rgba(255, 255, 255, 0.6);
   }
-  .carousel-dot.bg-white {
-    background-color: rgb(255, 255, 255);
-    width: 1.25rem;
+  .dot.active {
+    background: #e74c3c;
   }
 
-  /* Counter */
-  /* Use semi-transparent black overlay that works in both themes */
-  .carousel-counter {
-    border-radius: 9999px;
-    background-color: rgba(0, 0, 0, 0.4);
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    color: white;
-    backdrop-filter: blur(8px);
-  }
-  /* Dark mode: slightly more opaque for better contrast */
-  html[data-theme="dark"] .carousel-counter {
-    background-color: rgba(0, 0, 0, 0.6);
+  /* Responsive */
+  @media (max-width: 768px) {
+    .carousel-slide {
+      min-height: 280px;
+      aspect-ratio: 4 / 3;
+    }
+
+    .caption-bar {
+      padding: 1rem 1.25rem;
+      padding-bottom: 3rem;
+    }
+
+    .caption-title {
+      font-size: 1.2rem;
+    }
+
+    .caption-meta {
+      font-size: 0.75rem;
+      gap: 0.4rem;
+    }
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+    }
   }
 </style>
 
 <script is:inline>
   /**
-   * Carousel controller:
-   * - Scroll by container width
-   * - Track active slide via IntersectionObserver
-   * - Sync dots and counter
-   * - Autoplay with pause-on-hover/focus and prefers-reduced-motion support
-   *
-   * IMPORTANT:
-   * - Avoid scrollIntoView() because it can scroll the whole page.
-   * - Use scroller.scrollTo({ left }) to only move the carousel.
+   * Carousel controller - Logbook style
    */
   const root = document.querySelector("[data-hero-root]");
   const scroller = root?.querySelector("[data-carousel]");
@@ -315,22 +345,15 @@ function coverOf(entry: any) {
   const next = root?.querySelector("[data-next]");
   const slides = Array.from(root?.querySelectorAll("[data-slide]") ?? []);
   const dots = Array.from(root?.querySelectorAll("[data-dot]") ?? []);
-  const currentEl = root?.querySelector("[data-current]");
-  const totalEl = root?.querySelector("[data-total]");
 
   if (root && scroller && slides.length > 0) {
     const total = slides.length;
-    if (totalEl) totalEl.textContent = String(total);
-
     let activeIndex = 0;
 
     const setActive = (index) => {
       activeIndex = index;
-      if (currentEl) currentEl.textContent = String(index + 1);
-
       dots.forEach((dot, i) => {
-        dot.classList.toggle("bg-white", i === index);
-        dot.classList.toggle("bg-white/60", i !== index);
+        dot.classList.toggle("active", i === index);
       });
     };
 
@@ -368,7 +391,6 @@ function coverOf(entry: any) {
           if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
         }
         if (!best || !best.isIntersecting) return;
-
         const idx = Number(best.target.getAttribute("data-index"));
         if (!Number.isNaN(idx)) setActive(idx);
       },
@@ -377,9 +399,8 @@ function coverOf(entry: any) {
 
     slides.forEach((s) => io.observe(s));
 
-    // ---- Autoplay ---------------------------------------------------------
+    // Autoplay
     const AUTOPLAY_MS = 6000;
-
     const prefersReducedMotion =
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -397,7 +418,6 @@ function coverOf(entry: any) {
     const startAutoplay = () => {
       if (prefersReducedMotion) return;
       if (timer) return;
-
       timer = setInterval(() => {
         if (paused) return;
         const nextIndex = (activeIndex + 1) % total;
@@ -412,25 +432,15 @@ function coverOf(entry: any) {
     root.addEventListener("mouseleave", resume);
     root.addEventListener("focusin", pause);
     root.addEventListener("focusout", resume);
-
     root.addEventListener("touchstart", pause, { passive: true });
-    root.addEventListener(
-      "touchend",
-      () => { setTimeout(resume, 800); },
-      { passive: true }
-    );
+    root.addEventListener("touchend", () => { setTimeout(resume, 800); }, { passive: true });
 
     if (total >= 2) startAutoplay();
-
     setActive(0);
 
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
-        stopAutoplay();
-        io.disconnect();
-      },
-      { once: true }
-    );
+    document.addEventListener("astro:before-swap", () => {
+      stopAutoplay();
+      io.disconnect();
+    }, { once: true });
   }
 </script>
