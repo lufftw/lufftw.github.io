@@ -59,13 +59,12 @@ const featuredPost = featuredPosts.find((p) => !heroSlugs.has(p.id));
  * Main list items:
  * - Exclude hero items and the single featured card item (if present)
  */
-const excludedSlugs = new Set([
-  ...heroItems.map((p) => p.id),
-  featuredPost?.id,
-]);
+// const excludedSlugs = new Set([
+//   ...heroItems.map((p) => p.id),
+//   featuredPost?.id,
+// ]);
 
 const listItems = sortedPosts
-  .filter((p) => !excludedSlugs.has(p.id))
   .slice(0, SITE.postPerIndex ?? 12);
 ---
 
