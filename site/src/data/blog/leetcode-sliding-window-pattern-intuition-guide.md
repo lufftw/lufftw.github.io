@@ -2,7 +2,7 @@
 author: Luff
 type: post
 pubDatetime: 2025-12-21T12:00:00+08:00
-modDatetime: 2025-12-21T12:03:00Z
+modDatetime: 2025-12-21T09:00:00+08:00
 title: "Understanding the Sliding Window Pattern: An Intuition Guide for LeetCode"
 featured: true
 draft: false
