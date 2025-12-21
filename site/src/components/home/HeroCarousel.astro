@@ -292,46 +292,40 @@ function tagsOf(entry: any): string[] {
     color: #fff;
   }
 
-  /* Meta: inline row with centered alignment */
+  /* Meta: inline row with centered alignment, wrapped lines left-aligned */
   .caption-meta {
     margin-top: 0.6rem;
-    display: flex;
+    display: inline-flex; /* 改为 inline-flex，让容器本身可以居中 */
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* 换行后左对齐 */
     gap: 0.5rem;
     font-size: 0.88rem;
     color: rgba(255, 255, 255, 0.85);
-  }
-  
-  /* Trick to make wrapped lines align naturally while keeping first line centered */
-  .caption-meta::after {
-    content: '';
-    flex-basis: 100%;
-    width: 0;
-    height: 0;
-    overflow: hidden;
+    max-width: 100%;
   }
 
   .meta-item {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    flex-shrink: 0;
-    white-space: nowrap;
+    flex-shrink: 0; /* 防止被压缩 */
+    white-space: nowrap; /* 防止内部换行 */
+    flex-grow: 0; /* 不自动扩展 */
   }
   
-  /* Ensure meta-links wrap naturally within meta-item */
+  /* Ensure meta-links don't break - keep all links together */
   .meta-item .meta-links {
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* 禁止 meta-links 内部换行 */
     align-items: center;
     gap: 0;
   }
   
-  /* Allow meta-links to break if needed, but keep items together */
+  /* Keep each link as a single unit */
   .meta-item .meta-links a {
     white-space: nowrap;
+    flex-shrink: 0; /* 防止链接被压缩 */
   }
 
   .meta-icon {
