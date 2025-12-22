@@ -71,12 +71,15 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
     ) : (
       <div class="carousel-placeholder" />
     )}
+  </a>
 
-    {/* Caption bar at bottom */}
-    <div class="caption-bar">
+  {/* Caption bar at bottom - outside slide-link to allow metadata links */}
+  <div class="caption-bar">
+    <a href={getPathFromEntry(entry)} class="title-link">
       <h2 class="caption-title">{entry.data?.title ?? entry.slug}</h2>
+    </a>
 
-      <div class="caption-meta">
+    <div class="caption-meta">
         {/* Author and Date - inline items */}
         <div class="meta-row">
           {author && (
@@ -182,7 +185,6 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
         )}
       </div>
     </div>
-  </a>
 </article>
 
 <style>
@@ -246,6 +248,17 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
     text-align: center;
   }
 
+  /* Title link */
+  .title-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .title-link:hover .caption-title {
+    opacity: 0.9;
+  }
+
   /* Title: large, elegant italic */
   .caption-title {
     margin: 0;
@@ -254,6 +267,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
     font-weight: 400;
     line-height: 1.25;
     color: #fff;
+    transition: opacity 0.2s ease;
   }
 
   /* Meta: Stacked Groups + Inline Items */
