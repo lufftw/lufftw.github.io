@@ -31,6 +31,8 @@ ogImage: ../../assets/images/og/sliding-window.png
   </figcaption>
 </figure>
 
+## Table of contents
+
 ## The Situation That Calls for a Window
 
 Imagine you're walking through a long corridor, and you can only see through a rectangular frame you carry with you. As you move forward, new things enter your view on the right, and old things disappear on the left.
