@@ -15,6 +15,7 @@ import {
   categoriesOf,
   tagsOf,
   METADATA_LIMITS,
+  METADATA_SEPARATOR,
   getLimitedItems,
 } from "./HeroCarousel.utils";
 
@@ -103,7 +104,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
             <span class="meta-group-label">Topics:</span>
             <span class="meta-group-items">
               {topics.map((topic, idx) => [
-                idx > 0 && <span class="meta-separator"> · </span>,
+                idx > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>,
                 <a
                   href={`/topics/${slugifyStr(topic)}/`}
                   class="meta-link"
@@ -113,7 +114,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
               ])}
               {topicsOverflow > 0 && (
                 <>
-                  {topics.length > 0 && <span class="meta-separator"> · </span>}
+                  {topics.length > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>}
                   <a
                     href="/topics/"
                     class="meta-link meta-link-overflow"
@@ -132,7 +133,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
             <span class="meta-group-label">Categories:</span>
             <span class="meta-group-items">
               {categories.map((cat, idx) => [
-                idx > 0 && <span class="meta-separator"> · </span>,
+                idx > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>,
                 <a
                   href={`/categories/${slugifyStr(cat)}/`}
                   class="meta-link"
@@ -142,7 +143,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
               ])}
               {categoriesOverflow > 0 && (
                 <>
-                  {categories.length > 0 && <span class="meta-separator"> · </span>}
+                  {categories.length > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>}
                   <a
                     href="/categories/"
                     class="meta-link meta-link-overflow"
@@ -161,7 +162,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
             <span class="meta-group-label">Tags:</span>
             <span class="meta-group-items">
               {tags.map((tag, idx) => [
-                idx > 0 && <span class="meta-separator"> · </span>,
+                idx > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>,
                 <a
                   href={`/tags/${slugifyStr(tag)}/`}
                   class="meta-link"
@@ -171,7 +172,7 @@ const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
               ])}
               {tagsOverflow > 0 && (
                 <>
-                  {tags.length > 0 && <span class="meta-separator"> · </span>}
+                  {tags.length > 0 && <span class="meta-separator">{METADATA_SEPARATOR}</span>}
                   <a
                     href="/tags/"
                     class="meta-link meta-link-overflow"

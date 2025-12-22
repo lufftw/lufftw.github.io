@@ -58,6 +58,11 @@ export const METADATA_LIMITS = {
 } as const;
 
 /**
+ * Metadata separator for carousel and other displays
+ */
+export const METADATA_SEPARATOR = " · " as const;
+
+/**
  * Get limited items with overflow count
  */
 export function getLimitedItems<T>(
