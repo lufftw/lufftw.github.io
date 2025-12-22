@@ -1,0 +1,131 @@
+---
+/**
+ * CarouselSlide - Individual slide component for HeroCarousel
+ */
+
+import { Picture } from "astro:assets";
+import { getPathFromEntry } from "@/utils/getPath";
+import { slugifyStr } from "@/utils/slugify";
+import {
+  coverOf,
+  isImportedImage,
+  authorOf,
+  formatDate,
+  topicsOf,
+  categoriesOf,
+  tagsOf,
+} from "./HeroCarousel.utils";
+
+interface Props {
+  entry: any;
+  index: number;
+}
+
+const { entry, index } = Astro.props;
+
+const author = authorOf(entry);
+const date = formatDate(entry);
+const topics = topicsOf(entry);
+const categories = categoriesOf(entry);
+const tags = tagsOf(entry);
+---
+
+<article class="carousel-slide" data-slide data-index={index}>
+  <a href={getPathFromEntry(entry)} class="slide-link">
+    {/* Background image - displays fully */}
+    {entry.data?.ogImage ? (
+      isImportedImage(entry.data.ogImage) ? (
+        <Picture
+          src={entry.data.ogImage}
+          alt={entry.data?.title ?? entry.slug}
+          class="slide-img"
+          sizes="100vw"
+          widths={[360, 480, 640, 768, 1024, 1280, 1536, 1920]}
+          priority={index === 0}
+        />
+      ) : (
+        <img
+          src={coverOf(entry)}
+          alt={entry.data?.title ?? entry.slug}
+          class="slide-img"
+          loading={index === 0 ? "eager" : "lazy"}
+        />
+      )
+    ) : (
+      <div class="carousel-placeholder" />
+    )}
+
+    {/* Caption bar at bottom */}
+    <div class="caption-bar">
+      <h2 class="caption-title">{entry.data?.title ?? entry.slug}</h2>
+
+      <div class="caption-meta">
+        {author && (
+          <span class="meta-item">
+            <span class="meta-icon">👤</span>
+            <span>{author}</span>
+          </span>
+        )}
+
+        {date && (
+          <span class="meta-item">
+            <span class="meta-label">Date :</span>
+            <span>{date}</span>
+          </span>
+        )}
+
+        {topics.length > 0 && (
+          <span class="meta-item">
+            <span class="meta-label">Topics :</span>
+            <span class="meta-links">
+              {topics.map((topic, idx) => [
+                idx > 0 && " , ",
+                <a
+                  href={`/topics/${slugifyStr(topic)}/`}
+                  class="meta-link"
+                >
+                  {topic}
+                </a>
+              ])}
+            </span>
+          </span>
+        )}
+
+        {categories.length > 0 && (
+          <span class="meta-item">
+            <span class="meta-label">Categories :</span>
+            <span class="meta-links">
+              {categories.map((cat, idx) => [
+                idx > 0 && " , ",
+                <a
+                  href={`/categories/${slugifyStr(cat)}/`}
+                  class="meta-link"
+                >
+                  {cat}
+                </a>
+              ])}
+            </span>
+          </span>
+        )}
+
+        {tags.length > 0 && (
+          <span class="meta-item">
+            <span class="meta-label">Tags :</span>
+            <span class="meta-links">
+              {tags.map((tag, idx) => [
+                idx > 0 && " , ",
+                <a
+                  href={`/tags/${slugifyStr(tag)}/`}
+                  class="meta-link"
+                >
+                  {tag}
+                </a>
+              ])}
+            </span>
+          </span>
+        )}
+      </div>
+    </div>
+  </a>
+</article>
+

@@ -8,168 +8,18 @@
  * - Large italic title, inline meta
  */
 
-import { Picture } from "astro:assets";
-import { getPathFromEntry } from "@/utils/getPath";
-import { slugifyStr } from "@/utils/slugify";
+import CarouselSlide from "./CarouselSlide.astro";
+import { initHeroCarousel } from "./HeroCarousel.client";
 
 const { items } = Astro.props;
-
-function coverOf(entry: any) {
-  const ogImage = entry.data?.ogImage;
-  if (!ogImage) return undefined;
-  return typeof ogImage === "string" ? ogImage : ogImage?.src;
-}
-
-function isImportedImage(image: any): boolean {
-  return image && typeof image !== "string" && image.src && typeof image.src !== "string";
-}
-
-function asArray(v: unknown): string[] {
-  if (!v) return [];
-  if (Array.isArray(v)) return v.filter(Boolean).map(String);
-  return [String(v)];
-}
-
-function authorOf(entry: any): string | undefined {
-  const a = entry.data?.author;
-  if (typeof a === "string" && a.trim()) return a.trim();
-  const authors = asArray(entry.data?.authors);
-  return authors.length ? authors[0] : undefined;
-}
-
-function formatDate(entry: any): string | undefined {
-  const d = entry.data?.datetime || entry.data?.pubDatetime;
-  if (!d) return undefined;
-  const date = new Date(d);
-  const day = date.getDate();
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month}, ${year}`;
-}
-
-function topicsOf(entry: any): string[] {
-  return asArray(entry.data?.topics);
-}
-function categoriesOf(entry: any): string[] {
-  return asArray(entry.data?.categories);
-}
-function tagsOf(entry: any): string[] {
-  return asArray(entry.data?.tags);
-}
 ---
 
 <section class="hero-section" data-hero-root>
   <div class="carousel-container">
     <div class="carousel-scroller" data-carousel aria-label="Featured posts carousel">
-      {items.map((entry: any, idx: number) => {
-        const author = authorOf(entry);
-        const date = formatDate(entry);
-        const topics = topicsOf(entry);
-        const categories = categoriesOf(entry);
-        const tags = tagsOf(entry);
-
-        return (
-          <article class="carousel-slide" data-slide data-index={idx}>
-            <a href={getPathFromEntry(entry)} class="slide-link">
-              {/* Background image - displays fully */}
-              {entry.data?.ogImage ? (
-                isImportedImage(entry.data.ogImage) ? (
-                  <Picture
-                    src={entry.data.ogImage}
-                    alt={entry.data?.title ?? entry.slug}
-                    class="slide-img"
-                    sizes="100vw"
-                    widths={[360, 480, 640, 768, 1024, 1280, 1536, 1920]}
-                    priority={idx === 0}
-                  />
-                ) : (
-                  <img
-                    src={coverOf(entry)}
-                    alt={entry.data?.title ?? entry.slug}
-                    class="slide-img"
-                    loading={idx === 0 ? "eager" : "lazy"}
-                  />
-                )
-              ) : (
-                <div class="carousel-placeholder" />
-              )}
-
-              {/* Caption bar at bottom */}
-              <div class="caption-bar">
-                <h2 class="caption-title">{entry.data?.title ?? entry.slug}</h2>
-
-                <div class="caption-meta">
-                  {author && (
-                    <span class="meta-item">
-                      <span class="meta-icon">👤</span>
-                      <span>{author}</span>
-                    </span>
-                  )}
-
-                  {date && (
-                    <span class="meta-item">
-                      <span class="meta-label">Date :</span>
-                      <span>{date}</span>
-                    </span>
-                  )}
-
-                  {topics.length > 0 && (
-                    <span class="meta-item">
-                      <span class="meta-label">Topics :</span>
-                      <span class="meta-links">
-                        {topics.map((topic, idx) => [
-                          idx > 0 && " , ",
-                          <a
-                            href={`/topics/${slugifyStr(topic)}/`}
-                            class="meta-link"
-                          >
-                            {topic}
-                          </a>
-                        ])}
-                      </span>
-                    </span>
-                  )}
-
-                  {categories.length > 0 && (
-                    <span class="meta-item">
-                      <span class="meta-label">Categories :</span>
-                      <span class="meta-links">
-                        {categories.map((cat, idx) => [
-                          idx > 0 && " , ",
-                          <a
-                            href={`/categories/${slugifyStr(cat)}/`}
-                            class="meta-link"
-                          >
-                            {cat}
-                          </a>
-                        ])}
-                      </span>
-                    </span>
-                  )}
-
-                  {tags.length > 0 && (
-                    <span class="meta-item">
-                      <span class="meta-label">Tags :</span>
-                      <span class="meta-links">
-                        {tags.map((tag, idx) => [
-                          idx > 0 && " , ",
-                          <a
-                            href={`/tags/${slugifyStr(tag)}/`}
-                            class="meta-link"
-                          >
-                            {tag}
-                          </a>
-                        ])}
-                      </span>
-                    </span>
-                  )}
-                </div>
-              </div>
-            </a>
-          </article>
-        );
-      })}
+      {items.map((entry: any, idx: number) => (
+        <CarouselSlide entry={entry} index={idx} />
+      ))}
     </div>
 
     {/* Navigation arrows */}
@@ -253,7 +103,7 @@ function tagsOf(entry: any): string[] {
   @media (max-width: 1024px) {
     .slide-img {
       object-fit: contain;
-      background: #111; /* 或你主視覺的底色 */
+      background: #111;
     }
   }
 
@@ -295,10 +145,10 @@ function tagsOf(entry: any): string[] {
   /* Meta: inline row with centered alignment, wrapped lines left-aligned */
   .caption-meta {
     margin-top: 0.6rem;
-    display: inline-flex; /* 改为 inline-flex，让容器本身可以居中 */
+    display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-start; /* 换行后左对齐 */
+    justify-content: flex-start;
     gap: 0.5rem;
     font-size: 0.88rem;
     color: rgba(255, 255, 255, 0.85);
@@ -309,15 +159,15 @@ function tagsOf(entry: any): string[] {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    flex-shrink: 0; /* 防止被压缩 */
-    white-space: nowrap; /* 防止内部换行 */
-    flex-grow: 0; /* 不自动扩展 */
+    flex-shrink: 0;
+    white-space: nowrap;
+    flex-grow: 0;
   }
   
   /* Ensure meta-links don't break - keep all links together */
   .meta-item .meta-links {
     display: inline-flex;
-    flex-wrap: nowrap; /* 禁止 meta-links 内部换行 */
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0;
   }
@@ -325,7 +175,7 @@ function tagsOf(entry: any): string[] {
   /* Keep each link as a single unit */
   .meta-item .meta-links a {
     white-space: nowrap;
-    flex-shrink: 0; /* 防止链接被压缩 */
+    flex-shrink: 0;
   }
 
   .meta-icon {
@@ -355,7 +205,7 @@ function tagsOf(entry: any): string[] {
   /* Navigation buttons */
   .nav-btn {
     position: absolute;
-    top: calc(50% - 2rem); /* offset for caption bar */
+    top: calc(50% - 2rem);
     transform: translateY(-50%);
     width: 44px;
     height: 44px;
@@ -434,112 +284,18 @@ function tagsOf(entry: any): string[] {
   }
 </style>
 
-<script is:inline>
-  /**
-   * Carousel controller - Logbook style
-   */
-  const root = document.querySelector("[data-hero-root]");
-  const scroller = root?.querySelector("[data-carousel]");
-  const prev = root?.querySelector("[data-prev]");
-  const next = root?.querySelector("[data-next]");
-  const slides = Array.from(root?.querySelectorAll("[data-slide]") ?? []);
-  const dots = Array.from(root?.querySelectorAll("[data-dot]") ?? []);
-
-  if (root && scroller && slides.length > 0) {
-    const total = slides.length;
-    let activeIndex = 0;
-
-    const setActive = (index) => {
-      activeIndex = index;
-      dots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === index);
-      });
-    };
-
-    const leftOfIndex = (index) => {
-      const target = slides[index];
-      if (!target) return null;
-      return target.offsetLeft;
-    };
-
-    const scrollToIndex = (index) => {
-      const left = leftOfIndex(index);
-      if (left == null) return;
-      scroller.scrollTo({ left, behavior: "smooth" });
-    };
-
-    const scrollByOne = (direction) => {
-      const width = scroller.clientWidth;
-      scroller.scrollBy({ left: direction * width, behavior: "smooth" });
-    };
-
-    prev?.addEventListener("click", () => scrollByOne(-1));
-    next?.addEventListener("click", () => scrollByOne(1));
-
-    dots.forEach((dot) => {
-      dot.addEventListener("click", () => {
-        const idx = Number(dot.getAttribute("data-dot-index"));
-        if (!Number.isNaN(idx)) scrollToIndex(idx);
-      });
-    });
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        let best = null;
-        for (const e of entries) {
-          if (!best || e.intersectionRatio > best.intersectionRatio) best = e;
-        }
-        if (!best || !best.isIntersecting) return;
-        const idx = Number(best.target.getAttribute("data-index"));
-        if (!Number.isNaN(idx)) setActive(idx);
-      },
-      { root: scroller, threshold: [0.4, 0.6, 0.8] }
-    );
-
-    slides.forEach((s) => io.observe(s));
-
-    // Autoplay
-    const AUTOPLAY_MS = 6000;
-    const prefersReducedMotion =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    let timer = null;
-    let paused = false;
-
-    const stopAutoplay = () => {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
-    };
-
-    const startAutoplay = () => {
-      if (prefersReducedMotion) return;
-      if (timer) return;
-      timer = setInterval(() => {
-        if (paused) return;
-        const nextIndex = (activeIndex + 1) % total;
-        scrollToIndex(nextIndex);
-      }, AUTOPLAY_MS);
-    };
-
-    const pause = () => { paused = true; };
-    const resume = () => { paused = false; };
-
-    root.addEventListener("mouseenter", pause);
-    root.addEventListener("mouseleave", resume);
-    root.addEventListener("focusin", pause);
-    root.addEventListener("focusout", resume);
-    root.addEventListener("touchstart", pause, { passive: true });
-    root.addEventListener("touchend", () => { setTimeout(resume, 800); }, { passive: true });
-
-    if (total >= 2) startAutoplay();
-    setActive(0);
-
-    document.addEventListener("astro:before-swap", () => {
-      stopAutoplay();
-      io.disconnect();
-    }, { once: true });
+<script>
+  import { initHeroCarousel } from "./HeroCarousel.client";
+  
+  // Initialize carousel when DOM is ready
+  if (import.meta.env.SSR === false) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initHeroCarousel);
+    } else {
+      initHeroCarousel();
+    }
+    
+    // Also initialize on page transitions (Astro View Transitions)
+    document.addEventListener("astro:page-load", initHeroCarousel);
   }
 </script>
