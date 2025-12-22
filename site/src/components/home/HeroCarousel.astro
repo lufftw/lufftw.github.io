@@ -72,7 +72,8 @@ const { items } = Astro.props;
     display: none;
   }
 
-  .carousel-slide {
+  /* Use :global() for styles that need to be accessible by child components */
+  :global(.carousel-slide) {
     position: relative;
     width: 100%;
     flex: none;
@@ -82,7 +83,7 @@ const { items } = Astro.props;
     max-height: 580px;
   }
 
-  .slide-link {
+  :global(.slide-link) {
     display: block;
     width: 100%;
     height: 100%;
@@ -91,7 +92,7 @@ const { items } = Astro.props;
   }
 
   /* Image: full display, no cropping */
-  .slide-img {
+  :global(.slide-img) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -101,7 +102,7 @@ const { items } = Astro.props;
 
   /* Mobile + Tablet: no cropping */
   @media (max-width: 1024px) {
-    .slide-img {
+    :global(.slide-img) {
       object-fit: contain;
       background: #111;
     }
@@ -109,19 +110,19 @@ const { items } = Astro.props;
 
   /* Desktop: Hero visual, full-screen */
   @media (min-width: 1025px) {
-    .slide-img {
+    :global(.slide-img) {
       object-fit: cover;
     }
   }
 
-  .carousel-placeholder {
+  :global(.carousel-placeholder) {
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
   }
 
   /* Caption bar - solid background at bottom */
-  .caption-bar {
+  :global(.caption-bar) {
     position: absolute;
     left: 0;
     right: 0;
@@ -133,7 +134,7 @@ const { items } = Astro.props;
   }
 
   /* Title: large, elegant italic */
-  .caption-title {
+  :global(.caption-title) {
     margin: 0;
     font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
     font-size: clamp(1.4rem, calc(1rem + 1.5vw), 2.4rem);
@@ -143,7 +144,7 @@ const { items } = Astro.props;
   }
 
   /* Meta: inline row with centered alignment, wrapped lines left-aligned */
-  .caption-meta {
+  :global(.caption-meta) {
     margin-top: 0.6rem;
     display: inline-flex;
     flex-wrap: wrap;
@@ -155,7 +156,7 @@ const { items } = Astro.props;
     max-width: 100%;
   }
 
-  .meta-item {
+  :global(.meta-item) {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -165,7 +166,7 @@ const { items } = Astro.props;
   }
   
   /* Ensure meta-links don't break - keep all links together */
-  .meta-item .meta-links {
+  :global(.meta-item .meta-links) {
     display: inline-flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -173,31 +174,31 @@ const { items } = Astro.props;
   }
   
   /* Keep each link as a single unit */
-  .meta-item .meta-links a {
+  :global(.meta-item .meta-links a) {
     white-space: nowrap;
     flex-shrink: 0;
   }
 
-  .meta-icon {
+  :global(.meta-icon) {
     opacity: 0.9;
   }
 
-  .meta-label {
+  :global(.meta-label) {
     color: rgba(255, 255, 255, 0.7);
   }
 
-  .meta-links {
+  :global(.meta-links) {
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-color: rgba(255, 255, 255, 0.4);
   }
 
-  .meta-link {
+  :global(.meta-link) {
     color: inherit;
     text-decoration: inherit;
     transition: opacity 0.2s ease;
   }
-  .meta-link:hover {
+  :global(.meta-link:hover) {
     opacity: 0.8;
     text-decoration-color: rgba(255, 255, 255, 0.7);
   }
@@ -258,21 +259,21 @@ const { items } = Astro.props;
 
   /* Responsive */
   @media (max-width: 768px) {
-    .carousel-slide {
+    :global(.carousel-slide) {
       min-height: 280px;
       aspect-ratio: 4 / 3;
     }
 
-    .caption-bar {
+    :global(.caption-bar) {
       padding: 1rem 1.25rem;
       padding-bottom: 3rem;
     }
 
-    .caption-title {
+    :global(.caption-title) {
       font-size: 1.2rem;
     }
 
-    .caption-meta {
+    :global(.caption-meta) {
       font-size: 0.75rem;
       gap: 0.4rem;
     }
@@ -289,10 +290,12 @@ const { items } = Astro.props;
   
   // Initialize carousel when DOM is ready
   if (import.meta.env.SSR === false) {
+    // Initialize immediately if DOM is already loaded
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initHeroCarousel);
     } else {
-      initHeroCarousel();
+      // Use setTimeout to ensure DOM is fully ready
+      setTimeout(initHeroCarousel, 0);
     }
     
     // Also initialize on page transitions (Astro View Transitions)
