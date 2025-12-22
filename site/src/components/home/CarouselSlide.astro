@@ -14,6 +14,8 @@ import {
   topicsOf,
   categoriesOf,
   tagsOf,
+  METADATA_LIMITS,
+  getLimitedItems,
 } from "./HeroCarousel.utils";
 
 interface Props {
@@ -25,9 +27,24 @@ const { entry, index } = Astro.props;
 
 const author = authorOf(entry);
 const date = formatDate(entry);
-const topics = topicsOf(entry);
-const categories = categoriesOf(entry);
-const tags = tagsOf(entry);
+
+// Get metadata with Top-N limits
+const allTopics = topicsOf(entry);
+const allCategories = categoriesOf(entry);
+const allTags = tagsOf(entry);
+
+const { displayed: topics, overflowCount: topicsOverflow } = getLimitedItems(
+  allTopics,
+  METADATA_LIMITS.topics
+);
+const { displayed: categories, overflowCount: categoriesOverflow } = getLimitedItems(
+  allCategories,
+  METADATA_LIMITS.categories
+);
+const { displayed: tags, overflowCount: tagsOverflow } = getLimitedItems(
+  allTags,
+  METADATA_LIMITS.tags
+);
 ---
 
 <article class="carousel-slide" data-slide data-index={index}>
@@ -60,26 +77,30 @@ const tags = tagsOf(entry);
       <h2 class="caption-title">{entry.data?.title ?? entry.slug}</h2>
 
       <div class="caption-meta">
-        {author && (
-          <span class="meta-item">
-            <span class="meta-icon">👤</span>
-            <span>{author}</span>
-          </span>
-        )}
+        {/* Author and Date - inline items */}
+        <div class="meta-row">
+          {author && (
+            <span class="meta-item-inline">
+              <span class="meta-icon">👤</span>
+              <span>{author}</span>
+            </span>
+          )}
 
-        {date && (
-          <span class="meta-item">
-            <span class="meta-label">Date :</span>
-            <span>{date}</span>
-          </span>
-        )}
+          {date && (
+            <span class="meta-item-inline">
+              <span class="meta-label">Date :</span>
+              <span>{date}</span>
+            </span>
+          )}
+        </div>
 
-        {topics.length > 0 && (
-          <span class="meta-item">
-            <span class="meta-label">Topics :</span>
-            <span class="meta-links">
+        {/* Topics - Stacked Group */}
+        {allTopics.length > 0 && (
+          <div class="meta-group">
+            <span class="meta-group-label">Topics:</span>
+            <span class="meta-group-items">
               {topics.map((topic, idx) => [
-                idx > 0 && " , ",
+                idx > 0 && <span class="meta-separator"> · </span>,
                 <a
                   href={`/topics/${slugifyStr(topic)}/`}
                   class="meta-link"
@@ -87,16 +108,28 @@ const tags = tagsOf(entry);
                   {topic}
                 </a>
               ])}
+              {topicsOverflow > 0 && (
+                <>
+                  {topics.length > 0 && <span class="meta-separator"> · </span>}
+                  <a
+                    href="/topics/"
+                    class="meta-link meta-link-overflow"
+                  >
+                    +{topicsOverflow}
+                  </a>
+                </>
+              )}
             </span>
-          </span>
+          </div>
         )}
 
-        {categories.length > 0 && (
-          <span class="meta-item">
-            <span class="meta-label">Categories :</span>
-            <span class="meta-links">
+        {/* Categories - Stacked Group */}
+        {allCategories.length > 0 && (
+          <div class="meta-group">
+            <span class="meta-group-label">Categories:</span>
+            <span class="meta-group-items">
               {categories.map((cat, idx) => [
-                idx > 0 && " , ",
+                idx > 0 && <span class="meta-separator"> · </span>,
                 <a
                   href={`/categories/${slugifyStr(cat)}/`}
                   class="meta-link"
@@ -104,16 +137,28 @@ const tags = tagsOf(entry);
                   {cat}
                 </a>
               ])}
+              {categoriesOverflow > 0 && (
+                <>
+                  {categories.length > 0 && <span class="meta-separator"> · </span>}
+                  <a
+                    href="/categories/"
+                    class="meta-link meta-link-overflow"
+                  >
+                    +{categoriesOverflow}
+                  </a>
+                </>
+              )}
             </span>
-          </span>
+          </div>
         )}
 
-        {tags.length > 0 && (
-          <span class="meta-item">
-            <span class="meta-label">Tags :</span>
-            <span class="meta-links">
+        {/* Tags - Stacked Group */}
+        {allTags.length > 0 && (
+          <div class="meta-group">
+            <span class="meta-group-label">Tags:</span>
+            <span class="meta-group-items">
               {tags.map((tag, idx) => [
-                idx > 0 && " , ",
+                idx > 0 && <span class="meta-separator"> · </span>,
                 <a
                   href={`/tags/${slugifyStr(tag)}/`}
                   class="meta-link"
@@ -121,8 +166,19 @@ const tags = tagsOf(entry);
                   {tag}
                 </a>
               ])}
+              {tagsOverflow > 0 && (
+                <>
+                  {tags.length > 0 && <span class="meta-separator"> · </span>}
+                  <a
+                    href="/tags/"
+                    class="meta-link meta-link-overflow"
+                  >
+                    +{tagsOverflow}
+                  </a>
+                </>
+              )}
             </span>
-          </span>
+          </div>
         )}
       </div>
     </div>
@@ -200,40 +256,70 @@ const tags = tagsOf(entry);
     color: #fff;
   }
 
-  /* Meta: inline row with centered alignment, wrapped lines left-aligned */
+  /* Meta: Stacked Groups + Inline Items */
   .caption-meta {
     margin-top: 0.6rem;
-    display: inline-flex;
-    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    gap: 0.4rem;
     font-size: 0.88rem;
     color: rgba(255, 255, 255, 0.85);
     max-width: 100%;
   }
 
-  .meta-item {
+  /* Inline row for author and date */
+  .meta-row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .meta-item-inline {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    flex-shrink: 0;
     white-space: nowrap;
-    flex-grow: 0;
   }
-  
-  /* Ensure meta-links don't break - keep all links together */
-  .meta-item .meta-links {
+
+  /* Stacked group: each metadata type gets its own line */
+  /* Each group is atomic - label and items stay together */
+  .meta-group {
     display: inline-flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4rem;
+    /* Allow the entire group to wrap to next line if screen is too narrow */
+    max-width: 100%;
+  }
+
+  /* Label - atomic with items, never breaks away */
+  .meta-group-label {
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* Label and items form an atomic unit */
+  }
+
+  /* Items container - allows wrapping within items only */
+  /* Label stays on same line as first item */
+  .meta-group-items {
+    display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0;
+    /* Items can wrap to next line, but label stays with first line */
+    min-width: 0;
   }
-  
-  /* Keep each link as a single unit */
-  .meta-item .meta-links a {
-    white-space: nowrap;
-    flex-shrink: 0;
+
+  /* Separator between items */
+  .meta-separator {
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0.15rem;
+    user-select: none;
   }
 
   .meta-icon {
@@ -244,20 +330,28 @@ const tags = tagsOf(entry);
     color: rgba(255, 255, 255, 0.7);
   }
 
-  .meta-links {
+  .meta-link {
+    color: inherit;
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-color: rgba(255, 255, 255, 0.4);
+    transition: opacity 0.2s ease, text-decoration-color 0.2s ease;
+    white-space: nowrap;
   }
 
-  .meta-link {
-    color: inherit;
-    text-decoration: inherit;
-    transition: opacity 0.2s ease;
-  }
   .meta-link:hover {
     opacity: 0.8;
     text-decoration-color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Overflow indicator - visually weaker */
+  .meta-link-overflow {
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+
+  .meta-link-overflow:hover {
+    opacity: 0.9;
   }
 
   /* Responsive */
@@ -278,7 +372,15 @@ const tags = tagsOf(entry);
 
     .caption-meta {
       font-size: 0.75rem;
-      gap: 0.4rem;
+      gap: 0.35rem;
+    }
+
+    .meta-group {
+      gap: 0.3rem;
+    }
+
+    .meta-separator {
+      margin: 0 0.1rem;
     }
   }
 </style>

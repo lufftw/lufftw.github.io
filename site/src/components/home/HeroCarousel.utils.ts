@@ -48,3 +48,23 @@ export function tagsOf(entry: any): string[] {
   return asArray(entry.data?.tags);
 }
 
+/**
+ * Metadata display limits (Top-N strategy)
+ */
+export const METADATA_LIMITS = {
+  topics: 3,
+  categories: 3,
+  tags: 5,
+} as const;
+
+/**
+ * Get limited items with overflow count
+ */
+export function getLimitedItems<T>(
+  items: T[],
+  limit: number
+): { displayed: T[]; overflowCount: number } {
+  const displayed = items.slice(0, limit);
+  const overflowCount = Math.max(0, items.length - limit);
+  return { displayed, overflowCount };
+}
