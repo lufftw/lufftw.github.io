@@ -79,3 +79,8 @@ html[data-theme="dark"] {
 :target {
   scroll-margin-block: 1rem;
 }
+
+/* TOC - remove dashed underline decoration */
+details a {
+  text-decoration-style: solid;
+}
