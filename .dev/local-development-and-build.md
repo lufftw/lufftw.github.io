@@ -64,6 +64,8 @@ nvm use 20
 
 **Corepack** is a Node.js utility (included with Node 16.9+ and 18+) that manages package manager versions automatically. It ensures that the correct version of `pnpm` is used across different environments, matching the version specified in the project's `package.json` or lockfile.
 
+> **Understanding Corepack:** For a detailed explanation of what Corepack is and why it's useful, see [Appendix B: What is Corepack?](#appendix-b-what-is-corepack).
+
 ### Enable Corepack
 
 If corepack is not already enabled on your system, activate it:
@@ -73,7 +75,7 @@ corepack enable
 ```
 
 **What this does:**
-* Enables corepack as a shim for package managers (`pnpm`, `yarn`, etc.)
+* Activates Corepack as a package manager interface for Node.js
 * Allows Node.js to automatically use the correct package manager version for each project
 * Requires administrator/administrative privileges on Windows (run PowerShell as Administrator if needed)
 
@@ -269,3 +271,76 @@ In some Windows environments, running `nvm` commands may fail with:
 
 
 3. **Path Check:** Ensure `%NVM_HOME%` and `%NVM_SYMLINK%` are in your System `PATH`.
+
+---
+
+## Appendix B: What is Corepack?
+
+**Corepack** is a built-in Node.js utility that acts as a bridge between Node.js projects and package managers like Yarn and pnpm. It was introduced to simplify package manager management and ensure consistency across development environments.
+
+### The Problem Corepack Solves
+
+Node.js comes with npm built-in, but many projects use alternative package managers such as Yarn or pnpm for their unique advantages:
+
+* **Yarn** offers improved performance and better dependency resolution
+* **pnpm** provides efficient disk space usage through content-addressable storage and strict dependency isolation
+
+However, managing these tools manually presents challenges:
+
+* Different projects may require different versions of the same package manager
+* Manual installation and version switching can lead to conflicts
+* Team members may have different package manager versions, causing inconsistent behavior
+* CI/CD environments need to match local development setups exactly
+
+### How Corepack Works
+
+Corepack serves as an **interface layer** that:
+
+1. **Automatically manages package manager versions** based on project configuration
+2. **Eliminates manual installation** of package managers like Yarn and pnpm
+3. **Ensures version consistency** by reading the `packageManager` field from `package.json`
+4. **Provides seamless switching** between different package managers and versions
+
+When you run a package manager command (e.g., `pnpm install`), Corepack intercepts the call, checks the project's requirements, and automatically uses the correct version of the package manager—all without manual intervention.
+
+### Corepack as a Bridge
+
+Think of Corepack as a **translation layer** or **compatibility bridge**:
+
+* **Node.js** (which only includes npm) communicates with Corepack
+* **Corepack** translates requests and manages the appropriate package manager (Yarn, pnpm, etc.)
+* **Package managers** execute the actual dependency management tasks
+
+This architecture allows Node.js to support multiple package managers without bundling them directly, while ensuring that each project uses exactly the version it needs.
+
+### Version Management
+
+Corepack reads the `packageManager` field in your `package.json` to determine which package manager and version to use:
+
+```json
+{
+  "packageManager": "pnpm@9.0.0"
+}
+```
+
+When this field is present, Corepack automatically:
+* Downloads the specified version if not already available
+* Uses that exact version for all package manager operations
+* Ensures all team members and CI environments use the same version
+
+### Availability and Requirements
+
+* **Included by default** in Node.js 16.9.0 and later (including Node 18+ and 20+)
+* **Disabled by default** and must be explicitly enabled with `corepack enable`
+* **Note:** Starting from Node.js 25, Corepack is no longer distributed with Node.js and must be installed separately
+
+### Benefits for Development Teams
+
+1. **Consistency:** Everyone uses the same package manager version
+2. **Simplicity:** No need to manually install or update package managers
+3. **Reliability:** Reduces "works on my machine" issues related to package manager versions
+4. **Flexibility:** Easy to switch between package managers or versions per project
+
+### Summary
+
+Corepack is Node.js's solution to package manager fragmentation. By providing a unified interface that automatically handles version management, it eliminates the need for manual installation and version coordination, making JavaScript development more consistent and reliable across different environments and team members.
