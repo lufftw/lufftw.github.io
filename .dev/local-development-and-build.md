@@ -60,7 +60,85 @@ nvm use 20
 
 ---
 
-## 3. Project Structure
+## 3. Package Manager Setup (corepack & pnpm)
+
+**Corepack** is a Node.js utility (included with Node 16.9+ and 18+) that manages package manager versions automatically. It ensures that the correct version of `pnpm` is used across different environments, matching the version specified in the project's `package.json` or lockfile.
+
+### Enable Corepack
+
+If corepack is not already enabled on your system, activate it:
+
+```bash
+corepack enable
+```
+
+**What this does:**
+* Enables corepack as a shim for package managers (`pnpm`, `yarn`, etc.)
+* Allows Node.js to automatically use the correct package manager version for each project
+* Requires administrator/administrative privileges on Windows (run PowerShell as Administrator if needed)
+
+**Note:** After enabling corepack, you may need to restart your terminal or PowerShell session for changes to take effect.
+
+### Verify pnpm Availability
+
+Confirm that `pnpm` is accessible through corepack:
+
+```bash
+pnpm -v
+```
+
+**Expected output:** A version number (e.g., `9.x.x` or similar)
+
+If the command fails, ensure:
+1. Corepack is enabled (see above)
+2. Node.js version 20 is active (`nvm use 20`)
+3. Your terminal session has been restarted after enabling corepack
+
+### Prepare and Activate Latest pnpm
+
+Ensure you have the latest stable version of pnpm available via corepack:
+
+```bash
+corepack prepare pnpm@latest --activate
+```
+
+**What this does:**
+* Downloads and prepares the latest stable version of pnpm
+* Makes it available for use via corepack
+* The `--activate` flag sets this version as the default for corepack-managed pnpm
+
+**Alternative:** If your project specifies a particular pnpm version in `package.json` (via `packageManager` field), corepack will automatically use that version. You can also prepare a specific version:
+
+```bash
+# Example: Prepare a specific version
+corepack prepare pnpm@9.0.0 --activate
+```
+
+### Re-sync Lockfile (When Needed)
+
+If you encounter dependency resolution issues or the lockfile appears out of sync with `package.json`, you can force a fresh lockfile generation:
+
+```bash
+cd site
+pnpm install --no-frozen-lockfile
+```
+
+**When to use `--no-frozen-lockfile`:**
+* When `pnpm-lock.yaml` is missing or corrupted
+* When `package.json` dependencies have been manually updated and the lockfile needs regeneration
+* When switching between different Node.js versions and encountering version conflicts
+* **Note:** In CI/CD environments, this flag is typically **not** used to ensure reproducible builds
+
+**What this does:**
+* Ignores the existing lockfile and resolves all dependencies from scratch
+* Regenerates `pnpm-lock.yaml` based on current `package.json` and compatible versions
+* Updates the lockfile to match your current Node.js and pnpm environment
+
+**Best Practice:** After regenerating the lockfile, commit the updated `pnpm-lock.yaml` to version control to maintain consistency across team members and CI environments.
+
+---
+
+## 4. Project Structure
 
 The website source code lives under the `site/` directory.
 
@@ -80,7 +158,7 @@ lufftw.github.io/
 
 ---
 
-## 4. Install Dependencies
+## 5. Install Dependencies
 
 Navigate to the `site` directory and install packages. **pnpm** is the preferred manager for this project to ensure lockfile integrity.
 
@@ -100,7 +178,7 @@ This step is required only on first setup or when `pnpm-lock.yaml` / `package.js
 
 ---
 
-## 5. Local Development Server
+## 6. Local Development Server
 
 Start the local development server with hot reload (Astro):
 
@@ -121,7 +199,7 @@ Open the URL in a browser. Changes to source files will be reflected immediately
 
 ---
 
-## 6. Production-Equivalent Build (Recommended)
+## 7. Production-Equivalent Build (Recommended)
 
 Before pushing changes to the `main` branch, always verify the production build locally to catch SSR or static generation errors.
 
@@ -145,17 +223,24 @@ Ensure the following routes render correctly:
 
 ---
 
-## 7. Standard Local Workflow Summary
+## 8. Standard Local Workflow Summary
 
 ```bash
 # 1. Environment Check
 nvm use 20
 
-# 2. Enter workspace
+# 2. Package Manager Setup (first time only)
+corepack enable
+corepack prepare pnpm@latest --activate
+pnpm -v  # verify installation
+
+# 3. Enter workspace
 cd site
 
-# 3. Launch Dev Environment
-pnpm install   # only when needed
+# 4. Install Dependencies (only when needed)
+pnpm install
+
+# 5. Launch Dev Environment
 pnpm dev
 
 ```
