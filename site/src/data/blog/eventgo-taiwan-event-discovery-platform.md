@@ -40,7 +40,7 @@ I kept asking myself: *why isn't there a single place where I can search all of 
 
 So I built one.
 
-[**EventGo**](https://eventgo.tw/) is a full-stack event discovery platform that aggregates events from across Taiwan and makes them searchable through hybrid AI-powered search, interactive maps, calendar views, and an AI chatbot that actually understands what you're looking for.
+[**EventGo**](https://eventgo.tw/) is a full-stack event discovery platform that aggregates events from across Taiwan and makes them searchable through [hybrid AI-powered search](https://eventgo.tw/search), interactive maps, [calendar views](https://eventgo.tw/search?view=calendar), and an [AI chatbot](https://eventgo.tw/chat) that actually understands what you're looking for.
 
 ---
 
@@ -72,13 +72,13 @@ The search pipeline:
 
 Not everyone searches the same way. EventGo offers three views:
 
-- **List view** — classic search results, filterable by category, city, date range, and price
+- [**List view**](https://eventgo.tw/search) — classic search results, filterable by category, city, date range, and price
 - **Map view** — Leaflet.js-powered interactive map showing events geographically
-- **Calendar view** — monthly calendar layout to plan your week
+- [**Calendar view**](https://eventgo.tw/search?view=calendar) — monthly calendar layout to plan your week
 
 ### AI chatbot that gets Taiwan
 
-The integrated AI chatbot isn't a generic Q&A bot. It's connected to the live event database and understands context like "I'm in Taipei this weekend with my girlfriend, suggest something romantic that's free." It searches, filters, and responds with curated recommendations — complete with links, dates, and locations.
+The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It's connected to the live event database and understands context like "I'm in Taipei this weekend with my girlfriend, suggest something romantic that's free." It searches, filters, and responds with curated recommendations — complete with links, dates, and locations.
 
 <figure>
   <img
@@ -125,7 +125,7 @@ For a content platform, being invisible to Google is death. EventGo treats SEO a
 As of March 2026:
 
 - **4,000+** events indexed and searchable
-- **76** auto-discovered thematic categories via k-means clustering + LLM naming
+- [**76** auto-discovered thematic categories](https://eventgo.tw/explore) via k-means clustering + LLM naming
 - **Sub-second** search response times (cached queries < 1ms)
 - **4,476** pages discovered by Google Search Console and growing
 
