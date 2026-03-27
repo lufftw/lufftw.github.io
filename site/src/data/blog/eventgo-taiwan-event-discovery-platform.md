@@ -28,7 +28,7 @@ ogImage: /assets/images/eventgo/og-cover.png
     alt="A vibrant outdoor festival at sunset in Taiwan with sky lanterns rising into the warm evening sky"
   />
   <figcaption class="text-center">
-    Taiwan is alive with events — festivals, exhibitions, concerts, markets — scattered across dozens of platforms with no single place to find them all.
+    Sky lanterns rise above the mountains as the stage lights up at sunset — this is what a Taiwan weekend looks like.
   </figcaption>
 </figure>
 
@@ -52,7 +52,7 @@ No need to guess the right keywords. Just type "free outdoor activities this wee
     alt="A crystalline glass cube refracting light, representing the intelligent search behind EventGo"
   />
   <figcaption class="text-center">
-    Search that thinks like you do — not just matching words, but understanding what kind of experience you're looking for.
+    Every search opens a window — revealing places you didn't know you wanted to go.
   </figcaption>
 </figure>
 
@@ -76,7 +76,7 @@ The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It
     alt="A futuristic cyberpunk cityscape representing the AI-powered technology behind EventGo"
   />
   <figcaption class="text-center">
-    The AI chatbot connects directly to the event search engine — every recommendation is backed by real, up-to-date data.
+    Tell the AI your mood, and it lights up a path through the city night.
   </figcaption>
 </figure>
 
@@ -109,7 +109,7 @@ As of March 2026:
     alt="A crowd at a music festival with hands raised and sky lanterns floating against a mountain backdrop"
   />
   <figcaption class="text-center">
-    Concerts, markets, exhibitions, festivals — everything happening across Taiwan, in one place.
+    Lanterns and cheers rising together — this moment belongs to everyone who showed up.
   </figcaption>
 </figure>
 
@@ -127,11 +127,11 @@ Whether you're planning a weekend outing, a date night, or a family trip — jus
     alt="A dreamy cherry blossom path with a girl dancing under the petals, evoking the magic of seasonal events in Taiwan"
   />
   <figcaption class="text-center">
-    Cherry blossom season, music festivals, night markets, art exhibitions — whatever you're looking for, EventGo helps you find it.
+    A girl dancing under cherry blossoms as petals drift in the wind — every season in Taiwan is a reason to step outside.
   </figcaption>
 </figure>
 
-**[eventgo.tw](https://eventgo.tw/)** — Discover events happening across Taiwan, right now.
+**[https://eventgo.tw/](https://eventgo.tw/)** — Discover events happening across Taiwan, right now.
 
 Whether you're a local looking for weekend plans, a traveler exploring the island, or just someone who believes that the best things in life happen when you show up — EventGo is built for you.
 
