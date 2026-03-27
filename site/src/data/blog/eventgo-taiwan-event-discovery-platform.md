@@ -107,7 +107,7 @@ As of March 2026:
 
 ---
 
-## Why I built this
+## More than search — your event radar for Taiwan
 
 <figure>
   <img
@@ -115,15 +115,13 @@ As of March 2026:
     alt="A crowd at a music festival with hands raised and sky lanterns floating against a mountain backdrop"
   />
   <figcaption class="text-center">
-    The best moments happen when you show up. EventGo exists to make sure you never miss them.
+    Concerts, markets, exhibitions, festivals — everything happening across Taiwan, in one place.
   </figcaption>
 </figure>
 
-I got tired of missing amazing events simply because I didn't know they existed. A friend would post photos from an incredible night market festival, and I'd think — *how did I not hear about this?*
+Taiwan has one of the most vibrant event cultures in Asia. Every weekend, hundreds of concerts, exhibitions, workshops, markets, and festivals happen across the island. EventGo brings all of that scattered information together into one platform, so you can discover everything in seconds.
 
-Taiwan has one of the most vibrant event cultures in Asia. Every weekend, there are hundreds of concerts, exhibitions, workshops, markets, and festivals happening across the island. But the information is scattered everywhere — and by the time you find it, it's often too late.
-
-EventGo started as a personal frustration and grew into something I hope everyone in Taiwan can use. It's still evolving, still getting better, and I'm building it every single day.
+Whether you're planning a weekend outing, a date night, or a family trip — just open EventGo and start exploring.
 
 ---
 
@@ -145,6 +143,6 @@ Whether you're a local looking for weekend plans, a traveler exploring the islan
 
 ---
 
-*Built with obsessive attention to detail, an unreasonable amount of late nights, and the belief that Taiwan's event scene deserves better tooling.*
+*Taiwan's event scene deserves better tooling.*
 
-*— Luff*
+*— [EventGo Team](https://eventgo.tw/)*
