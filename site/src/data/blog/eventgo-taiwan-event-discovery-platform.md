@@ -15,7 +15,7 @@ tags:
   - things to do in Taiwan
   - weekend plans
 description: "EventGo (eventgo.tw) is a free event discovery platform for Taiwan — find concerts, exhibitions, markets, and festivals with AI-powered search, calendar view, and smart recommendations."
-ogImage: /assets/images/eventgo/og-cover.png
+ogImage: ../../assets/images/eventgo/og-cover.png
 ---
 
 > *"Every weekend in Taiwan, thousands of events bloom across the island — you just need one place to find them all."*

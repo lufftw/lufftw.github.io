@@ -15,7 +15,7 @@ tags:
   - 週末活動
   - 活動推薦
 description: "EventGo (eventgo.tw) 是一個免費的台灣活動探索平台——用 AI 智慧搜尋找到演唱會、展覽、市集、祭典，支援日曆瀏覽和聊天推薦，再也不錯過精彩活動。"
-ogImage: /assets/images/eventgo/og-cover.png
+ogImage: ../../assets/images/eventgo/og-cover.png
 ---
 
 > *「台灣每個週末都有上千場活動在各個角落綻放——你只需要一個地方，就能全部找到。」*
