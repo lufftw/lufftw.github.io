@@ -3,22 +3,22 @@ author: Luff
 type: post
 pubDatetime: 2026-03-27T10:00:00+08:00
 modDatetime: 2026-03-27T10:00:00+08:00
-title: "EventGo — Building a hybrid-search event discovery platform for Taiwan"
+title: "EventGo — Discover every event happening in Taiwan, in one place"
 featured: true
 draft: false
 categories:
   - Project
 tags:
   - EventGo
-  - Elasticsearch
-  - Nuxt
-  - AI
-  - Side Project
+  - Taiwan events
+  - event discovery
+  - things to do in Taiwan
+  - weekend plans
 description: "EventGo (eventgo.tw) is a free event discovery platform for Taiwan — find concerts, exhibitions, markets, and festivals with AI-powered search, calendar view, and smart recommendations."
 ogImage: ../../assets/images/eventgo/og-cover.png
 ---
 
-> *"Every weekend in Taiwan, thousands of events bloom and vanish like fireflies. I wanted to build a net that catches them all."*
+> *"Every weekend in Taiwan, thousands of events bloom across the island — you just need one place to find them all."*
 
 ---
 
@@ -32,25 +32,19 @@ ogImage: ../../assets/images/eventgo/og-cover.png
   </figcaption>
 </figure>
 
-## The problem nobody was solving
+## Weekend plans? Sorted in seconds
 
-If you've ever tried to find something to do in Taiwan on a random Saturday, you know the pain. Events are fragmented across Facebook groups, government portals, ticketing sites, and obscure community boards. You either stumble into something by accident, or you miss it entirely.
+Concerts, exhibitions, night markets, workshops, festivals — Taiwan has it all, every single weekend. But finding them? That's been the hard part. Event info is scattered across Facebook groups, government portals, ticketing sites, and community boards.
 
-I kept asking myself: *why isn't there a single place where I can search all of them?*
-
-So I built one.
-
-[**EventGo**](https://eventgo.tw/) is a full-stack event discovery platform that aggregates events from across Taiwan and makes them searchable through [hybrid AI-powered search](https://eventgo.tw/search), interactive maps, [calendar views](https://eventgo.tw/search?view=calendar), and an [AI chatbot](https://eventgo.tw/chat) that actually understands what you're looking for.
+[**EventGo**](https://eventgo.tw/) brings it all together. One platform with [smart search](https://eventgo.tw/search), interactive maps, [calendar view](https://eventgo.tw/search?view=calendar), and an [AI chatbot](https://eventgo.tw/chat) that helps you find exactly what you're looking for.
 
 ---
 
 ## What makes EventGo different
 
-### Hybrid search that actually understands you
+### Smart search — just say what you want
 
-Most event platforms give you keyword matching. Type "music" and you get everything with the word "music" in it. That's not search — that's `ctrl+F`.
-
-EventGo uses **AI-powered smart search**. When you search for "a chill outdoor thing this weekend," it doesn't just match keywords — it understands what you *actually* want. It reads between the lines, considers timing, mood, and context, then surfaces the events that truly fit.
+No need to guess the right keywords. Just type "free outdoor activities this weekend in Taipei" and EventGo gets it. It understands what you *actually* want — the mood, the timing, the vibe — and shows you events that truly fit.
 
 <figure>
   <img
@@ -69,7 +63,7 @@ The result? Search that feels like asking a friend who knows every event in Taiw
 Not everyone searches the same way. EventGo offers three views:
 
 - [**List view**](https://eventgo.tw/search) — classic search results, filterable by category, city, date range, and price
-- **Map view** — Leaflet.js-powered interactive map showing events geographically
+- **Map view** — interactive map showing events near you
 - [**Calendar view**](https://eventgo.tw/search?view=calendar) — monthly calendar layout to plan your week
 
 ### AI chatbot that gets Taiwan
