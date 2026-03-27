@@ -14,7 +14,7 @@ tags:
   - Nuxt
   - AI
   - Side Project
-description: "How I built EventGo (eventgo.tw), a full-stack event discovery platform for Taiwan featuring hybrid search, AI chatbot, and multi-view browsing — from zero to thousands of indexed events."
+description: "EventGo (eventgo.tw) is a free event discovery platform for Taiwan — find concerts, exhibitions, markets, and festivals with AI-powered search, calendar view, and smart recommendations."
 ogImage: ../../assets/images/eventgo/og-cover.png
 ---
 
@@ -50,23 +50,19 @@ So I built one.
 
 Most event platforms give you keyword matching. Type "music" and you get everything with the word "music" in it. That's not search — that's `ctrl+F`.
 
-EventGo uses **hybrid search**: a combination of traditional BM25 text matching (30%) and vector similarity search (70%) powered by state-of-the-art multilingual embeddings. When you search for "a chill outdoor thing this weekend," it doesn't just match keywords — it understands the *intent*.
+EventGo uses **AI-powered smart search**. When you search for "a chill outdoor thing this weekend," it doesn't just match keywords — it understands what you *actually* want. It reads between the lines, considers timing, mood, and context, then surfaces the events that truly fit.
 
 <figure>
   <img
     src="../../assets/images/eventgo/glass-cube.png"
-    alt="A crystalline glass cube refracting light, representing the multi-faceted search architecture"
+    alt="A crystalline glass cube refracting light, representing the intelligent search behind EventGo"
   />
   <figcaption class="text-center">
-    Hybrid search combines the precision of traditional text matching with the semantic understanding of vector embeddings.
+    Search that thinks like you do — not just matching words, but understanding what kind of experience you're looking for.
   </figcaption>
 </figure>
 
-The search pipeline:
-- **Elasticsearch 9** with ICU Chinese segmentation for proper Traditional Chinese tokenization
-- **Qwen3 embeddings** (4096-dimensional Matryoshka vectors) running on dedicated GPU workers
-- **Redis caching** with 24-hour TTL — repeat queries resolve in under 1ms
-- **Smart ranking** with time-decay and location awareness
+The result? Search that feels like asking a friend who knows every event in Taiwan.
 
 ### Three ways to browse
 
@@ -92,31 +88,11 @@ The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It
 
 ---
 
-## The tech under the hood
+## Built for speed, designed for discovery
 
-EventGo is a monorepo with a clear separation of concerns:
+EventGo is fast — really fast. Search results come back in under a second, and pages load instantly whether you're on your phone or desktop. Every event page is optimized so Google can find it, which means you can often discover EventGo events just by searching on Google.
 
-| Layer | Stack |
-|-------|-------|
-| **Frontend** | Nuxt 3 + Vue 3 + TypeScript + Tailwind CSS |
-| **Backend** | Hono + Node.js + TypeScript |
-| **Search** | Elasticsearch 9 (hybrid BM25 + kNN) |
-| **Embeddings** | Qwen3 8B via Ollama on GPU workers |
-| **AI Chat** | Multi-model agent with tool-calling |
-| **Data** | PostgreSQL + Redis + RabbitMQ |
-| **Proxy** | Caddy 2 with auto HTTPS |
-| **SSR** | Full server-side rendering for SEO |
-
-The entire platform runs on self-hosted infrastructure — no cloud bills, no vendor lock-in. Every component is something I can debug, tune, and scale myself.
-
-### SEO as a first-class citizen
-
-For a content platform, being invisible to Google is death. EventGo treats SEO as architecture, not afterthought:
-
-- **Full SSR** — every page is server-rendered with proper meta tags
-- **Schema.org Event structured data** — Google can parse event dates, locations, prices, and organizers directly
-- **Dynamic sitemap** — auto-generated from the database, prioritized by event proximity
-- **Open Graph + Twitter Cards** — beautiful previews when shared on social media
+When you share an event link on LINE, Facebook, or any social platform, it automatically shows a beautiful preview with the event image, title, and details — making it effortless to invite friends.
 
 ---
 
@@ -124,14 +100,14 @@ For a content platform, being invisible to Google is death. EventGo treats SEO a
 
 As of March 2026:
 
-- **4,000+** events indexed and searchable
-- [**76** auto-discovered thematic categories](https://eventgo.tw/explore) via k-means clustering + LLM naming
-- **Sub-second** search response times (cached queries < 1ms)
-- **4,476** pages discovered by Google Search Console and growing
+- **4,000+** events from across Taiwan, updated daily
+- [**76** curated theme categories](https://eventgo.tw/explore) — from outdoor adventures to art exhibitions, automatically organized so you can browse by mood
+- **Instant search** — results in under a second, every time
+- **Growing every day** — more sources, more events, more cities
 
 ---
 
-## What I learned building this
+## Why I built this
 
 <figure>
   <img
@@ -139,17 +115,15 @@ As of March 2026:
     alt="A crowd at a music festival with hands raised and sky lanterns floating against a mountain backdrop"
   />
   <figcaption class="text-center">
-    Building EventGo taught me that the hardest part of a search engine isn't the algorithm — it's understanding what people actually want to find.
+    The best moments happen when you show up. EventGo exists to make sure you never miss them.
   </figcaption>
 </figure>
 
-**Chinese NLP is hard.** Traditional Chinese tokenization is fundamentally different from English. Without ICU segmentation, Elasticsearch treats entire sentences as single tokens. Getting search quality right required understanding linguistics, not just engineering.
+I got tired of missing amazing events simply because I didn't know they existed. A friend would post photos from an incredible night market festival, and I'd think — *how did I not hear about this?*
 
-**Hybrid search is worth the complexity.** Pure vector search hallucinates relevance. Pure BM25 misses semantics. The 30/70 blend was the result of weeks of tuning on real user queries — and it works remarkably well.
+Taiwan has one of the most vibrant event cultures in Asia. Every weekend, there are hundreds of concerts, exhibitions, workshops, markets, and festivals happening across the island. But the information is scattered everywhere — and by the time you find it, it's often too late.
 
-**Self-hosting is a superpower.** When you control the entire stack, you can iterate at the speed of thought. No waiting for cloud deployments, no surprise bills, no opaque abstractions. The trade-off is operational burden — but for a solo developer, the learning is the point.
-
-**Ship, then perfect.** EventGo started as a weekend hack. The first version had no vector search, no chat, no map view. Every feature was added because a real user (often me) needed it. The best architecture is the one that evolves.
+EventGo started as a personal frustration and grew into something I hope everyone in Taiwan can use. It's still evolving, still getting better, and I'm building it every single day.
 
 ---
 
