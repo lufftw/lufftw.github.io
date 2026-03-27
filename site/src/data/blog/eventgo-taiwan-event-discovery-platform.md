@@ -15,7 +15,7 @@ tags:
   - things to do in Taiwan
   - weekend plans
 description: "EventGo (eventgo.tw) is a free event discovery platform for Taiwan — find concerts, exhibitions, markets, and festivals with AI-powered search, calendar view, and smart recommendations."
-ogImage: ../../assets/images/eventgo/og-cover.png
+ogImage: /assets/images/eventgo/og-cover.png
 ---
 
 > *"Every weekend in Taiwan, thousands of events bloom across the island — you just need one place to find them all."*
@@ -24,7 +24,7 @@ ogImage: ../../assets/images/eventgo/og-cover.png
 
 <figure>
   <img
-    src="../../assets/images/eventgo/festival-sunset.png"
+    src="/assets/images/eventgo/festival-sunset.png"
     alt="A vibrant outdoor festival at sunset in Taiwan with sky lanterns rising into the warm evening sky"
   />
   <figcaption class="text-center">
@@ -48,7 +48,7 @@ No need to guess the right keywords. Just type "free outdoor activities this wee
 
 <figure>
   <img
-    src="../../assets/images/eventgo/glass-cube.png"
+    src="/assets/images/eventgo/glass-cube.png"
     alt="A crystalline glass cube refracting light, representing the intelligent search behind EventGo"
   />
   <figcaption class="text-center">
@@ -72,7 +72,7 @@ The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It
 
 <figure>
   <img
-    src="../../assets/images/eventgo/cyber-city.png"
+    src="/assets/images/eventgo/cyber-city.png"
     alt="A futuristic cyberpunk cityscape representing the AI-powered technology behind EventGo"
   />
   <figcaption class="text-center">
@@ -105,7 +105,7 @@ As of March 2026:
 
 <figure>
   <img
-    src="../../assets/images/eventgo/music-festival.png"
+    src="/assets/images/eventgo/music-festival.png"
     alt="A crowd at a music festival with hands raised and sky lanterns floating against a mountain backdrop"
   />
   <figcaption class="text-center">
@@ -123,7 +123,7 @@ Whether you're planning a weekend outing, a date night, or a family trip — jus
 
 <figure>
   <img
-    src="../../assets/images/eventgo/cherry-blossom.png"
+    src="/assets/images/eventgo/cherry-blossom.png"
     alt="A dreamy cherry blossom path with a girl dancing under the petals, evoking the magic of seasonal events in Taiwan"
   />
   <figcaption class="text-center">
