@@ -20,21 +20,24 @@ ogImage: /assets/images/eventgo/og-cover.png
 
 > *"Every weekend in Taiwan, thousands of events bloom across the island — you just need one place to find them all."*
 
----
-
 <figure>
   <img
     src="/assets/images/eventgo/festival-sunset.png"
     alt="A vibrant outdoor festival at sunset in Taiwan with sky lanterns rising into the warm evening sky"
+    style="border-radius: 12px;"
   />
-  <figcaption class="text-center">
+  <figcaption class="text-center" style="font-style: italic; opacity: 0.8;">
     Sky lanterns rise above the mountains as the stage lights up at sunset — this is what a Taiwan weekend looks like.
   </figcaption>
 </figure>
 
+---
+
 ## Weekend plans? Sorted in seconds
 
-Concerts, exhibitions, night markets, workshops, festivals — Taiwan has it all, every single weekend. But finding them? That's been the hard part. Event info is scattered across Facebook groups, government portals, ticketing sites, and community boards.
+Concerts, exhibitions, night markets, workshops, festivals — Taiwan has it all, every single weekend. But finding them?
+
+> Event info is scattered across Facebook groups, government portals, ticketing sites, and community boards. You either stumble into something by accident, or you miss it entirely.
 
 [**EventGo**](https://eventgo.tw/) brings it all together. One platform with [smart search](https://eventgo.tw/search), interactive maps, [calendar view](https://eventgo.tw/search?view=calendar), and an [AI chatbot](https://eventgo.tw/chat) that helps you find exactly what you're looking for.
 
@@ -44,14 +47,19 @@ Concerts, exhibitions, night markets, workshops, festivals — Taiwan has it all
 
 ### Smart search — just say what you want
 
-No need to guess the right keywords. Just type "free outdoor activities this weekend in Taipei" and EventGo gets it. It understands what you *actually* want — the mood, the timing, the vibe — and shows you events that truly fit.
+No need to guess the right keywords. Just type what's on your mind —
+
+> *"Free outdoor activities this weekend in Taipei"*
+
+EventGo gets it. It understands what you *actually* want — the mood, the timing, the vibe — and shows you events that truly fit.
 
 <figure>
   <img
     src="/assets/images/eventgo/glass-cube.png"
     alt="A crystalline glass cube refracting light, representing the intelligent search behind EventGo"
+    style="border-radius: 12px;"
   />
-  <figcaption class="text-center">
+  <figcaption class="text-center" style="font-style: italic; opacity: 0.8;">
     Every search opens a window — revealing places you didn't know you wanted to go.
   </figcaption>
 </figure>
@@ -60,22 +68,29 @@ The result? Search that feels like asking a friend who knows every event in Taiw
 
 ### Three ways to browse
 
-Not everyone searches the same way. EventGo offers three views:
+Everyone explores differently —
 
-- [**List view**](https://eventgo.tw/search) — classic search results, filterable by category, city, date range, and price
-- **Map view** — interactive map showing events near you
-- [**Calendar view**](https://eventgo.tw/search?view=calendar) — monthly calendar layout to plan your week
+| Mode | Best for |
+|:----:|:---------|
+| [**List**](https://eventgo.tw/search) | Filtering by category, city, date, and price with precision |
+| **Map** | Seeing what's happening near you, or planning a day trip route |
+| [**Calendar**](https://eventgo.tw/search?view=calendar) | Planning your week at a glance — see what's on each day |
 
 ### AI chatbot that gets Taiwan
 
-The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It's connected to the live event database and understands context like "I'm in Taipei this weekend with my girlfriend, suggest something romantic that's free." It searches, filters, and responds with curated recommendations — complete with links, dates, and locations.
+The [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. Talk to it like you'd talk to a friend —
+
+> *"I'm in Taipei this weekend with my girlfriend, suggest something romantic that's free."*
+
+It searches, filters, and responds with curated recommendations — complete with links, dates, and locations. Ready to go.
 
 <figure>
   <img
     src="/assets/images/eventgo/cyber-city.png"
     alt="A futuristic cyberpunk cityscape representing the AI-powered technology behind EventGo"
+    style="border-radius: 12px;"
   />
-  <figcaption class="text-center">
+  <figcaption class="text-center" style="font-style: italic; opacity: 0.8;">
     Tell the AI your mood, and it lights up a path through the city night.
   </figcaption>
 </figure>
@@ -84,20 +99,24 @@ The integrated [AI chatbot](https://eventgo.tw/chat) isn't a generic Q&A bot. It
 
 ## Built for speed, designed for discovery
 
-EventGo is fast — really fast. Search results come back in under a second, and pages load instantly whether you're on your phone or desktop. Every event page is optimized so Google can find it, which means you can often discover EventGo events just by searching on Google.
-
-When you share an event link on LINE, Facebook, or any social platform, it automatically shows a beautiful preview with the event image, title, and details — making it effortless to invite friends.
+| | |
+|:--|:--|
+| **Search speed** | Results in under a second |
+| **Device support** | Phone, tablet, desktop — instant page loads |
+| **Google visibility** | Search for Taiwan events on Google, and EventGo results show up |
+| **Social sharing** | Share on LINE or Facebook — beautiful preview cards, effortless invites |
 
 ---
 
-## The numbers
+## EventGo by the numbers
 
-As of March 2026:
+<div style="text-align: center; margin: 2rem 0;">
 
-- **4,000+** events from across Taiwan, updated daily
-- [**76** curated theme categories](https://eventgo.tw/explore) — from outdoor adventures to art exhibitions, automatically organized so you can browse by mood
-- **Instant search** — results in under a second, every time
-- **Growing every day** — more sources, more events, more cities
+**4,000+** events · [**76 theme categories**](https://eventgo.tw/explore) · **All of Taiwan** · **Updated daily**
+
+</div>
+
+> From outdoor adventures to art exhibitions, from music festivals to family workshops — [browse by mood](https://eventgo.tw/explore), and there's always a category waiting for you.
 
 ---
 
@@ -107,15 +126,20 @@ As of March 2026:
   <img
     src="/assets/images/eventgo/music-festival.png"
     alt="A crowd at a music festival with hands raised and sky lanterns floating against a mountain backdrop"
+    style="border-radius: 12px;"
   />
-  <figcaption class="text-center">
+  <figcaption class="text-center" style="font-style: italic; opacity: 0.8;">
     Lanterns and cheers rising together — this moment belongs to everyone who showed up.
   </figcaption>
 </figure>
 
-Taiwan has one of the most vibrant event cultures in Asia. Every weekend, hundreds of concerts, exhibitions, workshops, markets, and festivals happen across the island. EventGo brings all of that scattered information together into one platform, so you can discover everything in seconds.
+Taiwan has one of the most vibrant event cultures in Asia. Every weekend, hundreds of concerts, exhibitions, workshops, markets, and festivals happen across the island.
 
-Whether you're planning a weekend outing, a date night, or a family trip — just open EventGo and start exploring.
+EventGo brings all of that scattered information together into one platform, so you can discover everything in seconds.
+
+> **Weekend plans** · **Date night** · **Family outing** · **Solo adventure**
+>
+> Whatever you're looking for — just open EventGo.
 
 ---
 
@@ -125,18 +149,33 @@ Whether you're planning a weekend outing, a date night, or a family trip — jus
   <img
     src="/assets/images/eventgo/cherry-blossom.png"
     alt="A dreamy cherry blossom path with a girl dancing under the petals, evoking the magic of seasonal events in Taiwan"
+    style="border-radius: 12px;"
   />
-  <figcaption class="text-center">
+  <figcaption class="text-center" style="font-style: italic; opacity: 0.8;">
     A girl dancing under cherry blossoms as petals drift in the wind — every season in Taiwan is a reason to step outside.
   </figcaption>
 </figure>
 
-**[https://eventgo.tw/](https://eventgo.tw/)** — Discover events happening across Taiwan, right now.
+<div style="text-align: center; font-size: 1.25rem; margin: 2rem 0;">
 
-Whether you're a local looking for weekend plans, a traveler exploring the island, or just someone who believes that the best things in life happen when you show up — EventGo is built for you.
+**[https://eventgo.tw/](https://eventgo.tw/)**
+
+Discover events happening across Taiwan, right now.
+
+</div>
+
+Whether you're a local looking for weekend plans, a traveler exploring the island, or just someone who believes —
+
+> *"The best things in life happen when you show up."*
+
+EventGo is built for you.
 
 ---
+
+<div style="text-align: center; opacity: 0.7;">
 
 *Taiwan's event scene deserves better tooling.*
 
 *— [EventGo Team](https://eventgo.tw/)*
+
+</div>
